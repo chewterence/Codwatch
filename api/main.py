@@ -130,7 +130,10 @@ def get_fishing_events(
             fe.lon,
             fe.fao_areas,
             fe.rfmo_areas,
-            fe.auth_status
+            ARRAY_REMOVE(ARRAY[
+                CASE WHEN v.eleginoides_authorized THEN 'D. eleginoides' END,
+                CASE WHEN v.mawsoni_authorized     THEN 'D. mawsoni'     END
+            ], NULL) AS target_species
         FROM fishing_events fe
         JOIN vessels v ON v.id = fe.vessel_id
         {where}

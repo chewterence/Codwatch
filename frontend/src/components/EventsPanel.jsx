@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import './EventsPanel.css'
 
 function fmt(isoStr) {
@@ -14,18 +14,50 @@ function fmtHours(h) {
   return `${h.toFixed(1)}h`
 }
 
+const TIPS = {
+  Vessel:   'The CCAMLR-authorised fishing vessel name.',
+  Date:     'Date the fishing activity started.',
+  Duration: 'How long the fishing event lasted. Detected from AIS movement patterns — slow speed and turns typical of longline setting or hauling.',
+  'FAO Area': 'FAO fishing area code where the event occurred. Southern Ocean toothfish subareas: 48.x (South Atlantic / South Georgia), 58.x (Indian Ocean / Kerguelen), 88.x (Ross Sea).',
+  Species:  'Target species this vessel is CCAMLR-authorised to catch. D. eleginoides = Patagonian toothfish. D. mawsoni = Antarctic toothfish.',
+  RFMO:     'Regional Fisheries Management Organisation governing this area. CCAMLR governs all Southern Ocean toothfish waters.',
+}
+
+function Th({ label }) {
+  const [pos, setPos] = useState(null)
+
+  const show = useCallback((e) => {
+    const r = e.currentTarget.getBoundingClientRect()
+    setPos({ x: r.left + r.width / 2, y: r.bottom })
+  }, [])
+
+  return (
+    <th className="th-hoverable" onMouseEnter={show} onMouseLeave={() => setPos(null)}>
+      {label}
+      {pos && TIPS[label] && (
+        <div
+          className="col-tooltip"
+          style={{ left: pos.x, top: pos.y + 6 }}
+        >
+          {TIPS[label]}
+        </div>
+      )}
+    </th>
+  )
+}
+
 function FishingTable({ rows }) {
   if (!rows.length) return <div className="empty-state">No fishing events found.</div>
   return (
     <table className="events-table">
       <thead>
         <tr>
-          <th>Vessel</th>
-          <th>Date</th>
-          <th>Duration</th>
-          <th>FAO Area</th>
-          <th>RFMO</th>
-          <th>Auth</th>
+          <Th label="Vessel" />
+          <Th label="Date" />
+          <Th label="Duration" />
+          <Th label="FAO Area" />
+          <Th label="Species" />
+          <Th label="RFMO" />
         </tr>
       </thead>
       <tbody>
@@ -35,14 +67,8 @@ function FishingTable({ rows }) {
             <td>{fmt(e.start_time)}</td>
             <td>{fmtHours(e.duration_hours)}</td>
             <td>{e.fao_areas?.join(', ') || '—'}</td>
-            <td>{e.rfmo_areas?.join(', ') || '—'}</td>
-            <td>
-              {e.auth_status === 'publicly_authorized'
-                ? <span className="badge badge--ok">✓</span>
-                : e.auth_status
-                  ? <span className="badge badge--warn">!</span>
-                  : '—'}
-            </td>
+            <td className="cell-species">{e.target_species?.join(', ') || '—'}</td>
+            <td className="cell-muted">{e.rfmo_areas?.join(', ') || '—'}</td>
           </tr>
         ))}
       </tbody>

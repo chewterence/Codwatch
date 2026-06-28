@@ -89,6 +89,35 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   border-bottom: 1px solid #1e2240;
+  position: relative;
+  white-space: nowrap;
+}
+
+/* Column header tooltip — position:fixed breaks out of table stacking context */
+.th-hoverable {
+  cursor: help;
+  text-decoration: underline dotted #4b5563;
+  text-underline-offset: 3px;
+}
+
+.col-tooltip {
+  position: fixed;
+  transform: translateX(-50%);
+  background: #1e2240;
+  color: #cbd5e1;
+  font-size: 12px;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #2d3260;
+  white-space: normal;
+  width: 240px;
+  z-index: 9999;
+  pointer-events: none;
+  line-height: 1.5;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.6);
 }
 
 .events-table td {
@@ -130,6 +159,17 @@
 .badge--warn {
   background: #2d1500;
   color: #d97706;
+}
+
+.cell-species {
+  color: #6ee7b7;
+  font-style: italic;
+  font-size: 11px;
+}
+
+.cell-muted {
+  color: #475569;
+  font-size: 11px;
 }
 
 .empty-state {
