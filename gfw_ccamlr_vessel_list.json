@@ -1,0 +1,1365 @@
+{
+  "metadata": {
+    "source": "https://www.ccamlr.org/en/compliance/list-authorised-vessels",
+    "fetched_date": "2026-06-28",
+    "authorization_filter": "2020-01-01 to 2027-12-31",
+    "species_filter": [
+      "Dissostichus eleginoides",
+      "Dissostichus mawsoni"
+    ],
+    "total_vessels": 32,
+    "notes": [
+      "CCAMLR publishes only currently active authorizations. Historical seasons before 2025 are not available from this source, except for multi-year licenses (e.g. Shinsei Maru No. 8, Sunstar).",
+      "Dissostichus spp. authorizations are expanded to both Dissostichus eleginoides AND Dissostichus mawsoni.",
+      "SSRU-level sub-areas (e.g. SSRU 88.2 A-B) are normalized to their parent subarea (e.g. 88.2).",
+      "gfw_vessel_id is null by default \u2014 run gfw_lookup.py to populate via GET /vessels/search.",
+      "Krill-only vessels (Euphausia superba) are excluded.",
+      "eleginoides_authorized and mawsoni_authorized are top-level convenience booleans for quick Python filtering.",
+      "ccamlr_member differs from flag only for Globalpesca III (flagged Chile, authorized under South Africa's CCAMLR membership).",
+      "gfw_match_confidence: 'exact'=name+flag matched; 'name_and_flag'=multiple records same vessel; 'name_only'=flag mismatch or not in registry; 'multiple_candidates'=ambiguous, check gfw_candidates; 'not_found'=no GFW record found."
+    ],
+    "gfw_lookup_date": "2026-06-28",
+    "gfw_lookup_stats": {
+      "exact": 18,
+      "name_and_flag": 6,
+      "name_only": 2,
+      "multiple_candidates": 1,
+      "not_found": 5
+    }
+  },
+  "vessels": [
+    {
+      "vessel": "Antarctic Aurora",
+      "flag": "Australia",
+      "ccamlr_member": "Australia",
+      "gfw_vessel_id": "0156d956e-e317-3fa1-e227-a5d0ce4d7e5d",
+      "eleginoides_authorized": true,
+      "mawsoni_authorized": true,
+      "authorizations": [
+        {
+          "period_from": "2026-04-01",
+          "period_to": "2026-11-30",
+          "areas": [
+            "58.5.2"
+          ],
+          "target_species": [
+            "Dissostichus eleginoides",
+            "Dissostichus mawsoni"
+          ]
+        },
+        {
+          "period_from": "2025-12-01",
+          "period_to": "2026-11-30",
+          "areas": [
+            "58.4.2"
+          ],
+          "target_species": [
+            "Dissostichus mawsoni"
+          ]
+        },
+        {
+          "period_from": "2025-12-01",
+          "period_to": "2026-08-31",
+          "areas": [
+            "88.1",
+            "88.2"
+          ],
+          "target_species": [
+            "Dissostichus mawsoni"
+          ]
+        }
+      ],
+      "gfw_ssvid": "503526000",
+      "gfw_imo": "9876244",
+      "gfw_callsign": "VKAA",
+      "gfw_flag": "AUS",
+      "gfw_geartypes": [
+        "SET_LONGLINES"
+      ],
+      "gfw_ais_from": "2020-08-19T10:48:15Z",
+      "gfw_ais_to": "2026-06-25T23:54:55Z",
+      "gfw_match_confidence": "name_and_flag"
+    },
+    {
+      "vessel": "Antarctic Discovery",
+      "flag": "Australia",
+      "ccamlr_member": "Australia",
+      "gfw_vessel_id": "ff97cced8-85cd-4ac9-4c79-329bb694c4b2",
+      "eleginoides_authorized": true,
+      "mawsoni_authorized": true,
+      "authorizations": [
+        {
+          "period_from": "2026-04-01",
+          "period_to": "2026-11-30",
+          "areas": [
+            "58.5.2"
+          ],
+          "target_species": [
+            "Dissostichus eleginoides",
+            "Dissostichus mawsoni"
+          ]
+        },
+        {
+          "period_from": "2025-12-01",
+          "period_to": "2026-08-31",
+          "areas": [
+            "88.1",
+            "88.2"
+          ],
+          "target_species": [
+            "Dissostichus mawsoni"
+          ]
+        }
+      ],
+      "gfw_ssvid": "503718000",
+      "gfw_imo": "9123219",
+      "gfw_callsign": "VKAD",
+      "gfw_flag": "AUS",
+      "gfw_geartypes": [
+        "FISHING",
+        "OTHER",
+        "SET_LONGLINES"
+      ],
+      "gfw_ais_from": "2015-10-27T11:35:23Z",
+      "gfw_ais_to": "2026-06-25T23:58:31Z",
+      "gfw_match_confidence": "exact"
+    },
+    {
+      "vessel": "Austral Odyssey",
+      "flag": "Australia",
+      "ccamlr_member": "Australia",
+      "gfw_vessel_id": "15b49ca31-1e2a-b514-d7a8-c1c6e2c4b23f",
+      "eleginoides_authorized": true,
+      "mawsoni_authorized": false,
+      "authorizations": [
+        {
+          "period_from": "2026-04-01",
+          "period_to": "2026-11-30",
+          "areas": [
+            "58.5.2"
+          ],
+          "target_species": [
+            "Dissostichus eleginoides"
+          ]
+        }
+      ],
+      "gfw_ssvid": "503000251",
+      "gfw_imo": "1040746",
+      "gfw_callsign": "VZAP",
+      "gfw_flag": "AUS",
+      "gfw_geartypes": [
+        "INCONCLUSIVE"
+      ],
+      "gfw_ais_from": "2025-12-05T13:28:17Z",
+      "gfw_ais_to": "2026-06-25T23:59:51Z",
+      "gfw_match_confidence": "name_and_flag"
+    },
+    {
+      "vessel": "Cape Arkona",
+      "flag": "Australia",
+      "ccamlr_member": "Australia",
+      "gfw_vessel_id": "1ed1fc468-8065-68a0-f7a5-09ff463277dd",
+      "eleginoides_authorized": true,
+      "mawsoni_authorized": false,
+      "authorizations": [
+        {
+          "period_from": "2025-12-01",
+          "period_to": "2026-11-30",
+          "areas": [
+            "58.5.2"
+          ],
+          "target_species": [
+            "Dissostichus eleginoides"
+          ]
+        },
+        {
+          "period_from": "2026-04-01",
+          "period_to": "2026-11-30",
+          "areas": [
+            "58.5.2"
+          ],
+          "target_species": [
+            "Dissostichus eleginoides"
+          ]
+        }
+      ],
+      "gfw_ssvid": "503000165",
+      "gfw_imo": "9857585",
+      "gfw_callsign": "VMDY",
+      "gfw_flag": "AUS",
+      "gfw_geartypes": [
+        "INCONCLUSIVE"
+      ],
+      "gfw_ais_from": "2020-06-04T12:08:18Z",
+      "gfw_ais_to": "2026-06-10T18:41:16Z",
+      "gfw_match_confidence": "exact"
+    },
+    {
+      "vessel": "Le Saint Andre",
+      "flag": "France",
+      "ccamlr_member": "France",
+      "gfw_vessel_id": null,
+      "eleginoides_authorized": true,
+      "mawsoni_authorized": true,
+      "authorizations": [
+        {
+          "period_from": "2025-12-01",
+          "period_to": "2026-11-30",
+          "areas": [
+            "58.4.2"
+          ],
+          "target_species": [
+            "Dissostichus eleginoides",
+            "Dissostichus mawsoni"
+          ]
+        }
+      ],
+      "gfw_ssvid": null,
+      "gfw_imo": null,
+      "gfw_callsign": null,
+      "gfw_flag": null,
+      "gfw_geartypes": [],
+      "gfw_ais_from": null,
+      "gfw_ais_to": null,
+      "gfw_match_confidence": "not_found",
+      "gfw_candidates": [
+        {
+          "gfw_vessel_id": "26f85e283-37d9-0cd4-aa2d-e86f93973deb",
+          "gfw_ssvid": "885044406",
+          "gfw_imo": null,
+          "gfw_flag": null,
+          "gfw_shipname": "ADHBUAASRCEM0GVPVP"
+        },
+        {
+          "gfw_vessel_id": "4f32aefbb-b7bc-75c2-2480-fae8be15f585",
+          "gfw_ssvid": "413786421",
+          "gfw_imo": null,
+          "gfw_flag": "CHN",
+          "gfw_shipname": "LUJINING1845"
+        },
+        {
+          "gfw_vessel_id": "33675f952-2f76-578b-ba2d-bf247240a2f9",
+          "gfw_ssvid": "413805409",
+          "gfw_imo": null,
+          "gfw_flag": "CHN",
+          "gfw_shipname": "GANRONG007"
+        },
+        {
+          "gfw_vessel_id": "8fa0ba479-992b-71d3-d593-69b5e9760bdd",
+          "gfw_ssvid": "413973078",
+          "gfw_imo": null,
+          "gfw_flag": "CHN",
+          "gfw_shipname": "LU JI NING HUO 3282"
+        },
+        {
+          "gfw_vessel_id": "e5d156111-121f-bddf-9a4a-9bba1926fba3",
+          "gfw_ssvid": "257070390",
+          "gfw_imo": null,
+          "gfw_flag": "NOR",
+          "gfw_shipname": "METRO SAGA"
+        },
+        {
+          "gfw_vessel_id": "538d6baf7-7e92-4cfb-5f37-5133d8c270e6",
+          "gfw_ssvid": "574560029",
+          "gfw_imo": null,
+          "gfw_flag": "VNM",
+          "gfw_shipname": "TAU CATTUONG LUOI B9"
+        },
+        {
+          "gfw_vessel_id": "fdde387bd-d907-1a68-f558-5e598c7ff139",
+          "gfw_ssvid": "258566510",
+          "gfw_imo": null,
+          "gfw_flag": "NOR",
+          "gfw_shipname": null
+        },
+        {
+          "gfw_vessel_id": "5b6bbfa0f-fbba-5ccf-bffd-948babb87d1a",
+          "gfw_ssvid": "257712490",
+          "gfw_imo": null,
+          "gfw_flag": "NOR",
+          "gfw_shipname": "FADERENS  BESLUTNING"
+        },
+        {
+          "gfw_vessel_id": "a60271116-6381-1563-6d30-af5649f9772a",
+          "gfw_ssvid": "574093433",
+          "gfw_imo": null,
+          "gfw_flag": "VNM",
+          "gfw_shipname": "LUOI GHE 77 F14"
+        },
+        {
+          "gfw_vessel_id": "9f134edbe-e990-e9a6-c1e9-57865fb26deb",
+          "gfw_ssvid": "574094854",
+          "gfw_imo": null,
+          "gfw_flag": "VNM",
+          "gfw_shipname": null
+        }
+      ]
+    },
+    {
+      "vessel": "Sainte Rose",
+      "flag": "France",
+      "ccamlr_member": "France",
+      "gfw_vessel_id": "51140e06b-b001-77a6-9a5e-68958c59412a",
+      "eleginoides_authorized": true,
+      "mawsoni_authorized": true,
+      "authorizations": [
+        {
+          "period_from": "2025-12-01",
+          "period_to": "2026-11-30",
+          "areas": [
+            "58.4.2"
+          ],
+          "target_species": [
+            "Dissostichus eleginoides",
+            "Dissostichus mawsoni"
+          ]
+        },
+        {
+          "period_from": "2025-12-01",
+          "period_to": "2026-08-31",
+          "areas": [
+            "88.1",
+            "88.2"
+          ],
+          "target_species": [
+            "Dissostichus eleginoides",
+            "Dissostichus mawsoni"
+          ]
+        }
+      ],
+      "gfw_ssvid": "660007900",
+      "gfw_imo": "9903281",
+      "gfw_callsign": "FMWG",
+      "gfw_flag": "FRA",
+      "gfw_geartypes": [
+        "SET_LONGLINES"
+      ],
+      "gfw_ais_from": "2023-03-30T10:48:40Z",
+      "gfw_ais_to": "2026-06-25T23:59:42Z",
+      "gfw_match_confidence": "name_and_flag"
+    },
+    {
+      "vessel": "Shinsei Maru No. 8",
+      "flag": "Japan",
+      "ccamlr_member": "Japan",
+      "gfw_vessel_id": "07dc71da9-9994-1249-c37e-108c745abc4f",
+      "eleginoides_authorized": true,
+      "mawsoni_authorized": true,
+      "authorizations": [
+        {
+          "period_from": "2021-04-01",
+          "period_to": "2026-03-31",
+          "areas": [
+            "48.6",
+            "58.4.1",
+            "58.4.2",
+            "58.4.3",
+            "58.4.4",
+            "88.1",
+            "88.2"
+          ],
+          "target_species": [
+            "Dissostichus eleginoides",
+            "Dissostichus mawsoni"
+          ]
+        },
+        {
+          "period_from": "2026-04-01",
+          "period_to": "2031-03-31",
+          "areas": [
+            "48.6",
+            "58.4.1",
+            "58.4.2",
+            "58.4.3",
+            "58.4.4",
+            "88.1",
+            "88.2"
+          ],
+          "target_species": [
+            "Dissostichus eleginoides",
+            "Dissostichus mawsoni"
+          ]
+        }
+      ],
+      "gfw_ssvid": "431650000",
+      "gfw_imo": "9891799",
+      "gfw_callsign": "7KFU",
+      "gfw_flag": "JPN",
+      "gfw_geartypes": [
+        "SET_LONGLINES"
+      ],
+      "gfw_ais_from": "2020-01-13T04:55:19Z",
+      "gfw_ais_to": "2026-06-23T12:35:18Z",
+      "gfw_match_confidence": "name_and_flag"
+    },
+    {
+      "vessel": "Blue Ocean",
+      "flag": "Korea, Republic of",
+      "ccamlr_member": "Korea, Republic of",
+      "gfw_vessel_id": "27a1eb612-2e8a-ba9e-cf57-9bd84b75e7d6",
+      "eleginoides_authorized": true,
+      "mawsoni_authorized": true,
+      "authorizations": [
+        {
+          "period_from": "2025-12-01",
+          "period_to": "2026-08-31",
+          "areas": [
+            "88.1",
+            "88.2"
+          ],
+          "target_species": [
+            "Dissostichus eleginoides",
+            "Dissostichus mawsoni"
+          ]
+        },
+        {
+          "period_from": "2026-07-21",
+          "period_to": "2030-07-20",
+          "areas": [
+            "88.1",
+            "88.2"
+          ],
+          "target_species": [
+            "Dissostichus eleginoides",
+            "Dissostichus mawsoni"
+          ]
+        }
+      ],
+      "gfw_ssvid": "525200036",
+      "gfw_imo": null,
+      "gfw_callsign": "PLDA",
+      "gfw_flag": "IDN",
+      "gfw_geartypes": [
+        "OTHER"
+      ],
+      "gfw_ais_from": "2025-07-21T01:25:54Z",
+      "gfw_ais_to": "2025-08-08T03:55:01Z",
+      "gfw_match_confidence": "multiple_candidates",
+      "gfw_candidates": [
+        {
+          "gfw_vessel_id": "9eae9d772-20bc-855c-a0bd-422a9955aa78",
+          "gfw_ssvid": "224607690",
+          "gfw_imo": null,
+          "gfw_flag": "ESP",
+          "gfw_shipname": "DALLONSSES"
+        },
+        {
+          "gfw_vessel_id": "3016a6ef0-05d2-864c-12c5-f827f8b60128",
+          "gfw_ssvid": "224607690",
+          "gfw_imo": null,
+          "gfw_flag": "ESP",
+          "gfw_shipname": "DELLONSES"
+        },
+        {
+          "gfw_vessel_id": "744ba0a67-738e-65de-2fe3-f6a3651addfa",
+          "gfw_ssvid": "412131765",
+          "gfw_imo": null,
+          "gfw_flag": "CHN",
+          "gfw_shipname": "SUNIC1"
+        },
+        {
+          "gfw_vessel_id": "1e51f629a-a82e-75a3-45e8-81ac8eed16f8",
+          "gfw_ssvid": "224607690",
+          "gfw_imo": null,
+          "gfw_flag": "ESP",
+          "gfw_shipname": null
+        },
+        {
+          "gfw_vessel_id": "9f6698c90-09c3-605c-4715-ce4578a27d64",
+          "gfw_ssvid": "982110725",
+          "gfw_imo": null,
+          "gfw_flag": null,
+          "gfw_shipname": null
+        },
+        {
+          "gfw_vessel_id": "19b303778-8fb6-08ba-71bd-bbadb546e5b7",
+          "gfw_ssvid": "224607690",
+          "gfw_imo": null,
+          "gfw_flag": "ESP",
+          "gfw_shipname": "DELLONSES"
+        },
+        {
+          "gfw_vessel_id": "86750cd7d-d96d-e977-7fe8-01c2d613492a",
+          "gfw_ssvid": "367073540",
+          "gfw_imo": null,
+          "gfw_flag": "USA",
+          "gfw_shipname": "M/V OCEAN"
+        },
+        {
+          "gfw_vessel_id": "27a1eb612-2e8a-ba9e-cf57-9bd84b75e7d6",
+          "gfw_ssvid": "525200036",
+          "gfw_imo": null,
+          "gfw_flag": "IDN",
+          "gfw_shipname": "MV BLUE OCEAN"
+        },
+        {
+          "gfw_vessel_id": "22cb64332-247a-2347-4709-2f4c6ec24015",
+          "gfw_ssvid": "245941000",
+          "gfw_imo": null,
+          "gfw_flag": "NLD",
+          "gfw_shipname": "BLUE OCEAN"
+        },
+        {
+          "gfw_vessel_id": "47764390f-f87e-102b-01fa-960c476075f0",
+          "gfw_ssvid": "219029104",
+          "gfw_imo": null,
+          "gfw_flag": "DNK",
+          "gfw_shipname": "BLUE OCEAN"
+        }
+      ]
+    },
+    {
+      "vessel": "Greenstar",
+      "flag": "Korea, Republic of",
+      "ccamlr_member": "Korea, Republic of",
+      "gfw_vessel_id": null,
+      "eleginoides_authorized": true,
+      "mawsoni_authorized": true,
+      "authorizations": [
+        {
+          "period_from": "2025-12-01",
+          "period_to": "2026-11-30",
+          "areas": [
+            "48.6"
+          ],
+          "target_species": [
+            "Dissostichus eleginoides",
+            "Dissostichus mawsoni"
+          ]
+        }
+      ],
+      "gfw_ssvid": null,
+      "gfw_imo": null,
+      "gfw_callsign": null,
+      "gfw_flag": null,
+      "gfw_geartypes": [],
+      "gfw_ais_from": null,
+      "gfw_ais_to": null,
+      "gfw_match_confidence": "not_found"
+    },
+    {
+      "vessel": "Kingstar",
+      "flag": "Korea, Republic of",
+      "ccamlr_member": "Korea, Republic of",
+      "gfw_vessel_id": null,
+      "eleginoides_authorized": true,
+      "mawsoni_authorized": true,
+      "authorizations": [
+        {
+          "period_from": "2025-12-01",
+          "period_to": "2026-08-31",
+          "areas": [
+            "88.2"
+          ],
+          "target_species": [
+            "Dissostichus eleginoides",
+            "Dissostichus mawsoni"
+          ]
+        },
+        {
+          "period_from": "2025-12-01",
+          "period_to": "2026-11-30",
+          "areas": [
+            "88.3"
+          ],
+          "target_species": [
+            "Dissostichus eleginoides",
+            "Dissostichus mawsoni"
+          ]
+        }
+      ],
+      "gfw_ssvid": null,
+      "gfw_imo": null,
+      "gfw_callsign": null,
+      "gfw_flag": null,
+      "gfw_geartypes": [],
+      "gfw_ais_from": null,
+      "gfw_ais_to": null,
+      "gfw_match_confidence": "not_found"
+    },
+    {
+      "vessel": "Ocean Park",
+      "flag": "Korea, Republic of",
+      "ccamlr_member": "Korea, Republic of",
+      "gfw_vessel_id": "35dccd417-7fc4-fef1-9044-bc06d13d4c30",
+      "eleginoides_authorized": true,
+      "mawsoni_authorized": true,
+      "authorizations": [
+        {
+          "period_from": "2025-12-01",
+          "period_to": "2026-08-31",
+          "areas": [
+            "88.2"
+          ],
+          "target_species": [
+            "Dissostichus eleginoides",
+            "Dissostichus mawsoni"
+          ]
+        }
+      ],
+      "gfw_ssvid": "316003481",
+      "gfw_imo": null,
+      "gfw_callsign": "VD4400",
+      "gfw_flag": "CAN",
+      "gfw_geartypes": [
+        "TROLLERS"
+      ],
+      "gfw_ais_from": "2012-11-07T06:14:31Z",
+      "gfw_ais_to": "2026-06-12T16:41:18Z",
+      "gfw_match_confidence": "name_only"
+    },
+    {
+      "vessel": "Sae In Master",
+      "flag": "Korea, Republic of",
+      "ccamlr_member": "Korea, Republic of",
+      "gfw_vessel_id": "d908f994f-f6c1-73b5-455b-72ce2a11fdb9",
+      "eleginoides_authorized": true,
+      "mawsoni_authorized": true,
+      "authorizations": [
+        {
+          "period_from": "2025-11-17",
+          "period_to": "2026-08-31",
+          "areas": [
+            "88.1",
+            "88.2"
+          ],
+          "target_species": [
+            "Dissostichus eleginoides",
+            "Dissostichus mawsoni"
+          ]
+        }
+      ],
+      "gfw_ssvid": "441784000",
+      "gfw_imo": "8748816",
+      "gfw_callsign": "DTBZ9",
+      "gfw_flag": "KOR",
+      "gfw_geartypes": [
+        "SET_LONGLINES"
+      ],
+      "gfw_ais_from": "2012-02-11T10:54:50Z",
+      "gfw_ais_to": "2026-06-25T23:59:53Z",
+      "gfw_match_confidence": "exact"
+    },
+    {
+      "vessel": "Sae In Pioneer",
+      "flag": "Korea, Republic of",
+      "ccamlr_member": "Korea, Republic of",
+      "gfw_vessel_id": "88c6764ab-b55c-05a3-f6e2-01bb8b7ca3c2",
+      "eleginoides_authorized": true,
+      "mawsoni_authorized": true,
+      "authorizations": [
+        {
+          "period_from": "2025-12-01",
+          "period_to": "2026-08-31",
+          "areas": [
+            "88.1",
+            "88.2"
+          ],
+          "target_species": [
+            "Dissostichus eleginoides",
+            "Dissostichus mawsoni"
+          ]
+        }
+      ],
+      "gfw_ssvid": "440100000",
+      "gfw_imo": "8821292",
+      "gfw_callsign": "DTBZ8",
+      "gfw_flag": "KOR",
+      "gfw_geartypes": [
+        "SET_LONGLINES"
+      ],
+      "gfw_ais_from": "2012-01-01T04:41:19Z",
+      "gfw_ais_to": "2026-06-25T23:59:49Z",
+      "gfw_match_confidence": "exact"
+    },
+    {
+      "vessel": "Sae In Victor",
+      "flag": "Korea, Republic of",
+      "ccamlr_member": "Korea, Republic of",
+      "gfw_vessel_id": "92f538f47-723a-e2c1-6cc5-a62b471a5bbb",
+      "eleginoides_authorized": true,
+      "mawsoni_authorized": true,
+      "authorizations": [
+        {
+          "period_from": "2025-12-01",
+          "period_to": "2026-08-31",
+          "areas": [
+            "88.1",
+            "88.2"
+          ],
+          "target_species": [
+            "Dissostichus eleginoides",
+            "Dissostichus mawsoni"
+          ]
+        }
+      ],
+      "gfw_ssvid": "225991269",
+      "gfw_imo": null,
+      "gfw_callsign": "VICTOR",
+      "gfw_flag": "ESP",
+      "gfw_geartypes": [
+        "OTHER"
+      ],
+      "gfw_ais_from": "2019-09-24T10:08:10Z",
+      "gfw_ais_to": "2025-10-18T11:16:32Z",
+      "gfw_match_confidence": "name_only"
+    },
+    {
+      "vessel": "Seven Park",
+      "flag": "Korea, Republic of",
+      "ccamlr_member": "Korea, Republic of",
+      "gfw_vessel_id": null,
+      "eleginoides_authorized": true,
+      "mawsoni_authorized": true,
+      "authorizations": [
+        {
+          "period_from": "2025-12-01",
+          "period_to": "2026-08-31",
+          "areas": [
+            "88.1",
+            "88.2"
+          ],
+          "target_species": [
+            "Dissostichus eleginoides",
+            "Dissostichus mawsoni"
+          ]
+        }
+      ],
+      "gfw_ssvid": null,
+      "gfw_imo": null,
+      "gfw_callsign": null,
+      "gfw_flag": null,
+      "gfw_geartypes": [],
+      "gfw_ais_from": null,
+      "gfw_ais_to": null,
+      "gfw_match_confidence": "not_found",
+      "gfw_candidates": [
+        {
+          "gfw_vessel_id": "024aba5bd-d1e9-10eb-4f5f-876716d6ef13",
+          "gfw_ssvid": "338933000",
+          "gfw_imo": null,
+          "gfw_flag": "USA",
+          "gfw_shipname": "WARSHIPSEVEN"
+        },
+        {
+          "gfw_vessel_id": "b69150b1e-ec19-b93b-e54d-9391d236575f",
+          "gfw_ssvid": "253435526",
+          "gfw_imo": null,
+          "gfw_flag": "LUX",
+          "gfw_shipname": "XINHUAYUAN[2\\1]"
+        },
+        {
+          "gfw_vessel_id": "38cbe93ae-ed84-7ca2-9f76-897d6727f1e2",
+          "gfw_ssvid": "785000000",
+          "gfw_imo": "7362902",
+          "gfw_flag": null,
+          "gfw_shipname": "AZARIA H PALLAIS"
+        }
+      ]
+    },
+    {
+      "vessel": "Southern Park",
+      "flag": "Korea, Republic of",
+      "ccamlr_member": "Korea, Republic of",
+      "gfw_vessel_id": "164c6a4a0-0381-61ae-c6cb-e9a72eb039f6",
+      "eleginoides_authorized": true,
+      "mawsoni_authorized": true,
+      "authorizations": [
+        {
+          "period_from": "2025-12-01",
+          "period_to": "2026-08-31",
+          "areas": [
+            "88.1",
+            "88.2"
+          ],
+          "target_species": [
+            "Dissostichus eleginoides",
+            "Dissostichus mawsoni"
+          ]
+        }
+      ],
+      "gfw_ssvid": "440282000",
+      "gfw_imo": "9178642",
+      "gfw_callsign": "6KCD8",
+      "gfw_flag": "KOR",
+      "gfw_geartypes": [
+        "SET_LONGLINES"
+      ],
+      "gfw_ais_from": "2014-10-27T02:24:19Z",
+      "gfw_ais_to": "2026-06-25T23:59:54Z",
+      "gfw_match_confidence": "exact"
+    },
+    {
+      "vessel": "Sunstar",
+      "flag": "Korea, Republic of",
+      "ccamlr_member": "Korea, Republic of",
+      "gfw_vessel_id": null,
+      "eleginoides_authorized": true,
+      "mawsoni_authorized": true,
+      "authorizations": [
+        {
+          "period_from": "2022-08-14",
+          "period_to": "2027-08-13",
+          "areas": [
+            "88.1",
+            "88.2"
+          ],
+          "target_species": [
+            "Dissostichus eleginoides",
+            "Dissostichus mawsoni"
+          ]
+        },
+        {
+          "period_from": "2025-12-01",
+          "period_to": "2026-08-31",
+          "areas": [
+            "88.1",
+            "88.2"
+          ],
+          "target_species": [
+            "Dissostichus eleginoides",
+            "Dissostichus mawsoni"
+          ]
+        }
+      ],
+      "gfw_ssvid": null,
+      "gfw_imo": null,
+      "gfw_callsign": null,
+      "gfw_flag": null,
+      "gfw_geartypes": [],
+      "gfw_ais_from": null,
+      "gfw_ais_to": null,
+      "gfw_match_confidence": "not_found"
+    },
+    {
+      "vessel": "Helena Ndume",
+      "flag": "Namibia",
+      "ccamlr_member": "Namibia",
+      "gfw_vessel_id": "8f371146e-eb30-34be-4e5f-5a034b169bf0",
+      "eleginoides_authorized": true,
+      "mawsoni_authorized": true,
+      "authorizations": [
+        {
+          "period_from": "2025-09-23",
+          "period_to": "2026-08-31",
+          "areas": [
+            "88.1",
+            "88.2"
+          ],
+          "target_species": [
+            "Dissostichus eleginoides",
+            "Dissostichus mawsoni"
+          ]
+        }
+      ],
+      "gfw_ssvid": "659096000",
+      "gfw_imo": "8510817",
+      "gfw_callsign": "V5MP",
+      "gfw_flag": "NAM",
+      "gfw_geartypes": [
+        "INCONCLUSIVE",
+        "NA",
+        "TRAWLERS",
+        "SET_LONGLINES"
+      ],
+      "gfw_ais_from": "2023-06-02T14:43:23Z",
+      "gfw_ais_to": "2026-05-16T10:21:24Z",
+      "gfw_match_confidence": "exact"
+    },
+    {
+      "vessel": "Janas",
+      "flag": "New Zealand",
+      "ccamlr_member": "New Zealand",
+      "gfw_vessel_id": "a018a89c7-7254-1143-2c64-be0ba1b82ce2",
+      "eleginoides_authorized": true,
+      "mawsoni_authorized": true,
+      "authorizations": [
+        {
+          "period_from": "2025-12-01",
+          "period_to": "2026-08-31",
+          "areas": [
+            "88.1",
+            "88.2"
+          ],
+          "target_species": [
+            "Dissostichus eleginoides",
+            "Dissostichus mawsoni"
+          ]
+        }
+      ],
+      "gfw_ssvid": "512006000",
+      "gfw_imo": "9057109",
+      "gfw_callsign": "ZMTW",
+      "gfw_flag": "NZL",
+      "gfw_geartypes": [
+        "SET_LONGLINES"
+      ],
+      "gfw_ais_from": "2015-03-11T02:42:06Z",
+      "gfw_ais_to": "2026-06-25T23:59:34Z",
+      "gfw_match_confidence": "exact"
+    },
+    {
+      "vessel": "San Aotea II",
+      "flag": "New Zealand",
+      "ccamlr_member": "New Zealand",
+      "gfw_vessel_id": "2587ebe76-6264-c731-4361-1c9aff99a78b",
+      "eleginoides_authorized": true,
+      "mawsoni_authorized": true,
+      "authorizations": [
+        {
+          "period_from": "2025-12-01",
+          "period_to": "2026-08-31",
+          "areas": [
+            "88.1",
+            "88.2"
+          ],
+          "target_species": [
+            "Dissostichus eleginoides",
+            "Dissostichus mawsoni"
+          ]
+        }
+      ],
+      "gfw_ssvid": "512008000",
+      "gfw_imo": "9057111",
+      "gfw_callsign": "ZM2534",
+      "gfw_flag": "NZL",
+      "gfw_geartypes": [
+        "SET_LONGLINES"
+      ],
+      "gfw_ais_from": "2013-03-04T22:34:12Z",
+      "gfw_ais_to": "2026-05-08T01:22:27Z",
+      "gfw_match_confidence": "exact"
+    },
+    {
+      "vessel": "San Aspiring",
+      "flag": "New Zealand",
+      "ccamlr_member": "New Zealand",
+      "gfw_vessel_id": "0ef40f9ab-b711-1d1b-339e-f4bd4aa8a901",
+      "eleginoides_authorized": true,
+      "mawsoni_authorized": true,
+      "authorizations": [
+        {
+          "period_from": "2025-12-01",
+          "period_to": "2026-08-31",
+          "areas": [
+            "88.1",
+            "88.2"
+          ],
+          "target_species": [
+            "Dissostichus eleginoides",
+            "Dissostichus mawsoni"
+          ]
+        }
+      ],
+      "gfw_ssvid": "512027000",
+      "gfw_imo": "9226528",
+      "gfw_callsign": "ZMGO",
+      "gfw_flag": "NZL",
+      "gfw_geartypes": [
+        "SET_LONGLINES"
+      ],
+      "gfw_ais_from": "2012-01-17T07:25:47Z",
+      "gfw_ais_to": "2026-06-25T23:58:26Z",
+      "gfw_match_confidence": "exact"
+    },
+    {
+      "vessel": "Alpha Crux",
+      "flag": "Russian Federation",
+      "ccamlr_member": "Russian Federation",
+      "gfw_vessel_id": "6602dba10-0957-22c6-869e-73dc9d9e63a4",
+      "eleginoides_authorized": true,
+      "mawsoni_authorized": true,
+      "authorizations": [
+        {
+          "period_from": "2025-12-01",
+          "period_to": "2026-08-31",
+          "areas": [
+            "88.1",
+            "88.2"
+          ],
+          "target_species": [
+            "Dissostichus eleginoides",
+            "Dissostichus mawsoni"
+          ]
+        }
+      ],
+      "gfw_ssvid": "273252010",
+      "gfw_imo": "9024621",
+      "gfw_callsign": "UBLZ7",
+      "gfw_flag": "RUS",
+      "gfw_geartypes": [
+        "FISHING",
+        "CARGO",
+        "NA",
+        "SET_LONGLINES"
+      ],
+      "gfw_ais_from": "2023-09-19T01:40:16Z",
+      "gfw_ais_to": "2026-06-25T23:52:46Z",
+      "gfw_match_confidence": "exact"
+    },
+    {
+      "vessel": "Yantar 31",
+      "flag": "Russian Federation",
+      "ccamlr_member": "Russian Federation",
+      "gfw_vessel_id": "4399543d9-90e4-d005-0cab-24bcf6995c0e",
+      "eleginoides_authorized": true,
+      "mawsoni_authorized": true,
+      "authorizations": [
+        {
+          "period_from": "2025-12-01",
+          "period_to": "2026-08-31",
+          "areas": [
+            "88.1",
+            "88.2"
+          ],
+          "target_species": [
+            "Dissostichus eleginoides",
+            "Dissostichus mawsoni"
+          ]
+        }
+      ],
+      "gfw_ssvid": "273341320",
+      "gfw_imo": "8916803",
+      "gfw_callsign": "UBWE5",
+      "gfw_flag": "RUS",
+      "gfw_geartypes": [
+        "SET_LONGLINES",
+        "OTHER"
+      ],
+      "gfw_ais_from": "2012-01-13T16:38:15Z",
+      "gfw_ais_to": "2026-06-25T23:58:51Z",
+      "gfw_match_confidence": "exact"
+    },
+    {
+      "vessel": "Globalpesca III",
+      "flag": "Chile",
+      "ccamlr_member": "South Africa",
+      "gfw_vessel_id": "cb421ca09-9742-e449-7ec0-fa62956cf83f",
+      "eleginoides_authorized": true,
+      "mawsoni_authorized": false,
+      "authorizations": [
+        {
+          "period_from": "2025-12-01",
+          "period_to": "2026-11-30",
+          "areas": [
+            "58.7"
+          ],
+          "target_species": [
+            "Dissostichus eleginoides"
+          ]
+        }
+      ],
+      "gfw_ssvid": "725000667",
+      "gfw_imo": "9247900",
+      "gfw_callsign": "CA2527",
+      "gfw_flag": "CHL",
+      "gfw_geartypes": [
+        "SET_LONGLINES"
+      ],
+      "gfw_ais_from": "2012-01-08T07:38:25Z",
+      "gfw_ais_to": "2026-06-25T23:59:53Z",
+      "gfw_match_confidence": "name_and_flag"
+    },
+    {
+      "vessel": "Tronio",
+      "flag": "Spain",
+      "ccamlr_member": "Spain",
+      "gfw_vessel_id": "970790c6e-eae0-7dad-b935-4b7f0828aad4",
+      "eleginoides_authorized": true,
+      "mawsoni_authorized": true,
+      "authorizations": [
+        {
+          "period_from": "2025-12-01",
+          "period_to": "2026-11-30",
+          "areas": [
+            "48.6",
+            "88.1",
+            "88.2"
+          ],
+          "target_species": [
+            "Dissostichus eleginoides",
+            "Dissostichus mawsoni"
+          ]
+        }
+      ],
+      "gfw_ssvid": "224623000",
+      "gfw_imo": "9361603",
+      "gfw_callsign": "ECJF",
+      "gfw_flag": "ESP",
+      "gfw_geartypes": [
+        "SET_LONGLINES"
+      ],
+      "gfw_ais_from": "2012-01-11T23:36:30Z",
+      "gfw_ais_to": "2026-06-25T23:59:52Z",
+      "gfw_match_confidence": "exact"
+    },
+    {
+      "vessel": "Calipso",
+      "flag": "Ukraine",
+      "ccamlr_member": "Ukraine",
+      "gfw_vessel_id": "9f8d13785-5ead-55ad-fb21-ab13822405e0",
+      "eleginoides_authorized": true,
+      "mawsoni_authorized": true,
+      "authorizations": [
+        {
+          "period_from": "2025-12-01",
+          "period_to": "2026-08-31",
+          "areas": [
+            "88.1",
+            "88.2"
+          ],
+          "target_species": [
+            "Dissostichus eleginoides",
+            "Dissostichus mawsoni"
+          ]
+        }
+      ],
+      "gfw_ssvid": "272770000",
+      "gfw_imo": "8916932",
+      "gfw_callsign": "UUAZ9",
+      "gfw_flag": "UKR",
+      "gfw_geartypes": [
+        "SET_LONGLINES"
+      ],
+      "gfw_ais_from": "2016-12-13T13:05:01Z",
+      "gfw_ais_to": "2026-05-20T08:09:10Z",
+      "gfw_match_confidence": "exact"
+    },
+    {
+      "vessel": "Koreiz",
+      "flag": "Ukraine",
+      "ccamlr_member": "Ukraine",
+      "gfw_vessel_id": "7b0fd76de-e310-a60e-de29-1605a4465957",
+      "eleginoides_authorized": true,
+      "mawsoni_authorized": true,
+      "authorizations": [
+        {
+          "period_from": "2025-12-01",
+          "period_to": "2026-08-31",
+          "areas": [
+            "88.1",
+            "88.2"
+          ],
+          "target_species": [
+            "Dissostichus eleginoides",
+            "Dissostichus mawsoni"
+          ]
+        }
+      ],
+      "gfw_ssvid": "272645000",
+      "gfw_imo": "8129785",
+      "gfw_callsign": "UUAS6",
+      "gfw_flag": "UKR",
+      "gfw_geartypes": [
+        "SET_LONGLINES"
+      ],
+      "gfw_ais_from": "2012-05-11T03:28:13Z",
+      "gfw_ais_to": "2026-06-25T23:59:37Z",
+      "gfw_match_confidence": "exact"
+    },
+    {
+      "vessel": "Marigolds",
+      "flag": "Ukraine",
+      "ccamlr_member": "Ukraine",
+      "gfw_vessel_id": "26413d681-1ee2-7057-0d19-b5519c0247d3",
+      "eleginoides_authorized": true,
+      "mawsoni_authorized": true,
+      "authorizations": [
+        {
+          "period_from": "2025-12-01",
+          "period_to": "2026-04-15",
+          "areas": [
+            "88.1",
+            "88.2",
+            "88.3"
+          ],
+          "target_species": [
+            "Dissostichus eleginoides",
+            "Dissostichus mawsoni"
+          ]
+        }
+      ],
+      "gfw_ssvid": "272762000",
+      "gfw_imo": "9447110",
+      "gfw_callsign": "UUBH5",
+      "gfw_flag": "UKR",
+      "gfw_geartypes": [
+        "OTHER",
+        "SET_LONGLINES",
+        "NA",
+        "INCONCLUSIVE"
+      ],
+      "gfw_ais_from": "2016-07-11T14:15:06Z",
+      "gfw_ais_to": "2026-06-25T23:49:50Z",
+      "gfw_match_confidence": "exact"
+    },
+    {
+      "vessel": "Simeiz",
+      "flag": "Ukraine",
+      "ccamlr_member": "Ukraine",
+      "gfw_vessel_id": "6af768bd5-57a0-668c-2325-4a5698903e84",
+      "eleginoides_authorized": true,
+      "mawsoni_authorized": true,
+      "authorizations": [
+        {
+          "period_from": "2025-12-01",
+          "period_to": "2026-08-31",
+          "areas": [
+            "88.1",
+            "88.2"
+          ],
+          "target_species": [
+            "Dissostichus eleginoides",
+            "Dissostichus mawsoni"
+          ]
+        }
+      ],
+      "gfw_ssvid": "272364000",
+      "gfw_imo": "9247912",
+      "gfw_callsign": "URBX",
+      "gfw_flag": "UKR",
+      "gfw_geartypes": [
+        "SET_LONGLINES"
+      ],
+      "gfw_ais_from": "2012-01-01T03:00:45Z",
+      "gfw_ais_to": "2026-05-28T03:46:29Z",
+      "gfw_match_confidence": "exact"
+    },
+    {
+      "vessel": "Argos Helena",
+      "flag": "United Kingdom",
+      "ccamlr_member": "United Kingdom",
+      "gfw_vessel_id": "84d6e84b4-423a-4e70-d349-b7eab2141292",
+      "eleginoides_authorized": true,
+      "mawsoni_authorized": true,
+      "authorizations": [
+        {
+          "period_from": "2025-12-01",
+          "period_to": "2026-11-30",
+          "areas": [
+            "48.3"
+          ],
+          "target_species": [
+            "Dissostichus eleginoides"
+          ]
+        },
+        {
+          "period_from": "2025-12-01",
+          "period_to": "2026-11-30",
+          "areas": [
+            "48.4"
+          ],
+          "target_species": [
+            "Dissostichus eleginoides",
+            "Dissostichus mawsoni"
+          ]
+        },
+        {
+          "period_from": "2025-12-01",
+          "period_to": "2026-08-31",
+          "areas": [
+            "88.1",
+            "88.2"
+          ],
+          "target_species": [
+            "Dissostichus mawsoni"
+          ]
+        }
+      ],
+      "gfw_ssvid": "665111132",
+      "gfw_imo": "9894208",
+      "gfw_callsign": "ZHHQ",
+      "gfw_flag": "GBR",
+      "gfw_geartypes": [
+        "SET_LONGLINES"
+      ],
+      "gfw_ais_from": "2021-07-29T11:36:37Z",
+      "gfw_ais_to": "2026-06-25T23:59:59Z",
+      "gfw_match_confidence": "name_and_flag"
+    },
+    {
+      "vessel": "Nordic Prince",
+      "flag": "United Kingdom",
+      "ccamlr_member": "United Kingdom",
+      "gfw_vessel_id": "dbf8a59dc-c9d3-eb3c-80e1-0597e13175c0",
+      "eleginoides_authorized": true,
+      "mawsoni_authorized": true,
+      "authorizations": [
+        {
+          "period_from": "2025-12-01",
+          "period_to": "2026-11-30",
+          "areas": [
+            "48.3"
+          ],
+          "target_species": [
+            "Dissostichus eleginoides"
+          ]
+        },
+        {
+          "period_from": "2025-12-01",
+          "period_to": "2026-08-31",
+          "areas": [
+            "88.1",
+            "88.2"
+          ],
+          "target_species": [
+            "Dissostichus mawsoni"
+          ]
+        }
+      ],
+      "gfw_ssvid": "665111130",
+      "gfw_imo": "9812688",
+      "gfw_callsign": "ZHHP",
+      "gfw_flag": "GBR",
+      "gfw_geartypes": [
+        "INCONCLUSIVE",
+        "SET_LONGLINES"
+      ],
+      "gfw_ais_from": "2018-02-23T13:58:55Z",
+      "gfw_ais_to": "2026-06-25T23:55:36Z",
+      "gfw_match_confidence": "exact"
+    },
+    {
+      "vessel": "Proa Pioneer",
+      "flag": "Uruguay",
+      "ccamlr_member": "Uruguay",
+      "gfw_vessel_id": "bb2cdf102-274a-2fc2-e44e-b54c73d0122a",
+      "eleginoides_authorized": true,
+      "mawsoni_authorized": true,
+      "authorizations": [
+        {
+          "period_from": "2025-11-12",
+          "period_to": "2026-01-11",
+          "areas": [
+            "88.2"
+          ],
+          "target_species": [
+            "Dissostichus mawsoni"
+          ]
+        },
+        {
+          "period_from": "2025-12-31",
+          "period_to": "2026-03-01",
+          "areas": [
+            "88.2"
+          ],
+          "target_species": [
+            "Dissostichus eleginoides",
+            "Dissostichus mawsoni"
+          ]
+        }
+      ],
+      "gfw_ssvid": "770576305",
+      "gfw_imo": "8808850",
+      "gfw_callsign": "CXCV",
+      "gfw_flag": "URY",
+      "gfw_geartypes": [
+        "OTHER",
+        "FISHING"
+      ],
+      "gfw_ais_from": "2015-10-02T01:32:13Z",
+      "gfw_ais_to": "2026-06-25T23:59:54Z",
+      "gfw_match_confidence": "exact"
+    }
+  ]
+}
