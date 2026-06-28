@@ -50,7 +50,7 @@ PAGE_LIMIT     = 100          # events per page
 BASE_URL   = "https://gateway.api.globalfishingwatch.org/v3"
 DATASETS   = {
     "fishing":    "public-global-fishing-events:latest",
-    "port_visit": "public-global-port-visits-c2:latest",
+    "port_visit": "public-global-loitering-events:latest",   # port visits extracted from nextPort field
     "encounter":  "public-global-encounters-events:latest",
     "ais_gap":    "public-global-gaps-events:latest",
 }
@@ -302,27 +302,53 @@ def store_fishing_events(conn, vessel_db_id: int, events: List[Dict[str, Any]]) 
 
 
 def store_port_visits(conn, vessel_db_id: int, events: List[Dict[str, Any]]) -> int:
+    """Extract unique port visits from loitering events via vessel.nextPort.
+
+    public-global-port-visits-c2:latest was deprecated from GFW's public API.
+    Port visit data is now sourced from loitering events: each contains a nextPort
+    reference (name, flag, portVisitEventId). We deduplicate by portVisitEventId
+    and use the loitering event's end time as a proxy for port arrival.
+    """
     if not events:
         return 0
 
-    rows = []
+    # Collect the latest-timed loitering event per unique portVisitEventId
+    best: Dict[str, Dict[str, Any]] = {}
     for e in events:
-        pos = e.get("position") or {}
-        pv  = e.get("portVisit") or {}
-        anc = pv.get("intermediateAnchorage") or {}
+        vessel_info = e.get("vessel") or {}
+        next_port   = vessel_info.get("nextPort") or {}
+        pv_id       = next_port.get("portVisitEventId")
+        port_name   = next_port.get("name")
+        if not pv_id or not port_name:
+            continue
+        # Keep whichever loitering event ends latest — closest to the actual port call
+        if pv_id not in best or (e.get("end") or "") > (best[pv_id]["end"] or ""):
+            best[pv_id] = {
+                "pv_id":      pv_id,
+                "port_name":  port_name,
+                "port_flag":  next_port.get("flag"),
+                "port_id":    next_port.get("id"),
+                "end":        e.get("end"),   # loitering end ≈ vessel heading to port
+            }
+
+    if not best:
+        return 0
+
+    rows = []
+    for v in best.values():
         rows.append((
-            e["id"],
+            v["pv_id"],
             vessel_db_id,
-            e.get("start"),
-            e.get("end"),
-            hours_between(e.get("start"), e.get("end")),
-            pos.get("lat"),
-            pos.get("lon"),
-            anc.get("name"),
-            anc.get("anchorageId"),
-            anc.get("flag"),
-            pv.get("confidence"),
-            psycopg2.extras.Json(e),
+            v["end"],   # start_time = loitering end (best proxy for port arrival)
+            None,       # end_time unknown
+            None,       # duration_hours unknown
+            None,       # lat (port lat not available without separate lookup)
+            None,       # lon
+            v["port_name"],
+            v["port_id"],
+            v["port_flag"],
+            2,          # confidence (consistent with GFW port visit default)
+            psycopg2.extras.Json({}),
         ))
 
     with conn.cursor() as cur:

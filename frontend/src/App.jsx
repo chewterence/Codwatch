@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import VesselSidebar from './components/VesselSidebar'
 import FleetMap from './components/FleetMap'
 import EventsPanel from './components/EventsPanel'
+import VesselDetail from './components/VesselDetail'
 import './App.css'
 
 function StatBadge({ label, value, highlight }) {
@@ -14,10 +15,11 @@ function StatBadge({ label, value, highlight }) {
 }
 
 export default function App() {
-  const [summary, setSummary]             = useState(null)
-  const [vessels, setVessels]             = useState([])
+  const [summary, setSummary]               = useState(null)
+  const [vessels, setVessels]               = useState([])
   const [selectedVessel, setSelectedVessel] = useState(null)
-  const [activeTab, setActiveTab]         = useState('fishing')
+  const [detailMode, setDetailMode]         = useState(false)
+  const [activeTab, setActiveTab]           = useState('fishing')
 
   useEffect(() => {
     fetch('/api/summary').then(r => r.json()).then(setSummary)
@@ -25,8 +27,16 @@ export default function App() {
   }, [])
 
   const handleVesselSelect = (vessel) => {
-    setSelectedVessel(prev => prev?.id === vessel.id ? null : vessel)
+    setSelectedVessel(vessel)
+    setDetailMode(true)
   }
+
+  const handleBack = () => {
+    setSelectedVessel(null)
+    setDetailMode(false)
+  }
+
+  const showDetail = detailMode && selectedVessel
 
   return (
     <div className="app">
@@ -51,13 +61,6 @@ export default function App() {
             <span className="loading-text">Loading...</span>
           )}
         </div>
-        {selectedVessel && (
-          <div className="topbar-selection">
-            <span className="selection-label">Viewing:</span>
-            <span className="selection-name">{selectedVessel.vessel_name}</span>
-            <button className="clear-btn" onClick={() => setSelectedVessel(null)}>✕</button>
-          </div>
-        )}
       </header>
 
       <div className="workspace">
@@ -67,12 +70,18 @@ export default function App() {
           onSelect={handleVesselSelect}
         />
         <div className="main-panel">
-          <FleetMap selectedVessel={selectedVessel} />
-          <EventsPanel
-            selectedVessel={selectedVessel}
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-          />
+          {showDetail ? (
+            <VesselDetail vessel={selectedVessel} onBack={handleBack} />
+          ) : (
+            <>
+              <FleetMap selectedVessel={selectedVessel} />
+              <EventsPanel
+                selectedVessel={selectedVessel}
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+              />
+            </>
+          )}
         </div>
       </div>
     </div>

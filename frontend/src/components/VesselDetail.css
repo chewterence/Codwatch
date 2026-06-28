@@ -1,0 +1,209 @@
+.vessel-detail {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #080a16;
+}
+
+/* ── Header ── */
+
+.detail-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 16px;
+  height: 52px;
+  background: #0d0f1a;
+  border-bottom: 1px solid #1e2240;
+  flex-shrink: 0;
+}
+
+.detail-back {
+  background: none;
+  border: 1px solid #1e2240;
+  color: #64748b;
+  font-size: 12px;
+  padding: 5px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: color 0.1s, border-color 0.1s;
+}
+
+.detail-back:hover {
+  color: #94a3b8;
+  border-color: #374151;
+}
+
+.detail-identity {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.detail-flag {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.detail-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: #e2e8f0;
+  white-space: nowrap;
+}
+
+.detail-country {
+  font-size: 11px;
+  color: #4b5563;
+  white-space: nowrap;
+}
+
+.detail-kpis {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 12px;
+  color: #64748b;
+  flex-shrink: 0;
+}
+
+.species-pill {
+  background: #052e16;
+  color: #6ee7b7;
+  font-size: 11px;
+  font-style: italic;
+  padding: 2px 8px;
+  border-radius: 10px;
+  border: 1px solid #065f46;
+  white-space: nowrap;
+}
+
+.detail-range {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.range-btn {
+  background: none;
+  border: 1px solid #1e2240;
+  color: #475569;
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: color 0.1s, border-color 0.1s;
+}
+
+.range-btn:hover {
+  color: #94a3b8;
+  border-color: #374151;
+}
+
+.range-btn--active {
+  background: #1a2545;
+  color: #93c5fd;
+  border-color: #3b82f6;
+}
+
+/* ── Loading ── */
+
+.detail-loading {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #2d3148;
+  font-size: 13px;
+}
+
+/* ── Port history ── */
+
+.port-section {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.port-section-title {
+  padding: 7px 16px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #374151;
+  background: #0d0f1a;
+  border-bottom: 1px solid #1e2240;
+  flex-shrink: 0;
+}
+
+.port-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.port-table thead {
+  position: sticky;
+  top: 0;
+  background: #0d1020;
+  z-index: 1;
+}
+
+.port-table th {
+  padding: 6px 16px;
+  text-align: left;
+  color: #374151;
+  font-weight: 600;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid #1e2240;
+  white-space: nowrap;
+}
+
+.port-table td {
+  padding: 6px 16px;
+  color: #94a3b8;
+  border-bottom: 1px solid #0f1226;
+}
+
+.port-table tr:hover td {
+  background: #111428;
+}
+
+.port-name {
+  color: #e2e8f0;
+  font-weight: 500;
+}
+
+.port-conf {
+  color: #475569;
+  font-size: 11px;
+}
+
+.port-empty {
+  padding: 36px 16px;
+  text-align: center;
+}
+
+.port-empty-title {
+  font-size: 13px;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+.port-empty-sub {
+  font-size: 11px;
+  color: #1e2240;
+  max-width: 420px;
+  margin: 0 auto;
+  line-height: 1.6;
+}

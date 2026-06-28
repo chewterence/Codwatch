@@ -10,7 +10,7 @@
 --   vessels               — one row per CCAMLR-authorized vessel (32 total, 27 with GFW IDs)
 --   vessel_authorizations — CCAMLR authorization periods per vessel (many-to-one)
 --   fishing_events        — GFW fishing activity detections
---   port_visits           — GFW port visit detections (where catch is landed)
+--   port_visits           — Port calls derived from GFW loitering events (nextPort field)
 --   encounters            — GFW vessel-to-vessel encounters (potential transhipment)
 --   ais_gaps              — AIS signal loss events (dark vessel behavior)
 --   backfill_log          — tracks what has been fetched so backfill can resume safely
@@ -86,19 +86,24 @@ CREATE INDEX IF NOT EXISTS idx_fishing_rfmo       ON fishing_events USING GIN(rf
 -- WHERE '48.3' = ANY(fe.fao_areas) AND 'CCAMLR' = ANY(fe.rfmo_areas)
 --   AND fe.start_time >= '2025-12-01' AND fe.start_time < '2026-12-01';
 
+-- Port visits are derived from loitering events (public-global-loitering-events:latest).
+-- GFW's dedicated port-visit datasets (public-global-port-visits-c2:latest etc.) were
+-- deprecated and removed from the public API tier — all return 404.
+-- Each loitering event contains vessel.nextPort.{name, flag, id, portVisitEventId}.
+-- We deduplicate by portVisitEventId and store one row per unique port call.
 CREATE TABLE IF NOT EXISTS port_visits (
-    event_id        TEXT PRIMARY KEY,
+    event_id        TEXT PRIMARY KEY,   -- GFW portVisitEventId (from loitering event nextPort)
     vessel_id       INTEGER NOT NULL REFERENCES vessels(id),
-    start_time      TIMESTAMPTZ NOT NULL,
-    end_time        TIMESTAMPTZ,
-    duration_hours  DOUBLE PRECISION,
-    lat             DOUBLE PRECISION,
-    lon             DOUBLE PRECISION,
+    start_time      TIMESTAMPTZ NOT NULL, -- loitering event end time ≈ vessel heading to port (approximate)
+    end_time        TIMESTAMPTZ,          -- NULL — not available from loitering source
+    duration_hours  DOUBLE PRECISION,     -- NULL — not available from loitering source
+    lat             DOUBLE PRECISION,     -- NULL — port coordinates not retrieved
+    lon             DOUBLE PRECISION,     -- NULL — port coordinates not retrieved
     port_name       TEXT,
-    port_id         TEXT,              -- GFW anchorage ID
+    port_id         TEXT,              -- GFW port ID (e.g. "mus-portlouis")
     port_flag       TEXT,              -- ISO3 country of port
-    confidence      INTEGER,           -- GFW confidence 1-4 (4 = highest)
-    raw             JSONB NOT NULL,
+    confidence      INTEGER,           -- stored as 2 (GFW default); not the loitering confidence
+    raw             JSONB NOT NULL,    -- stored as {} (raw loitering event not kept here)
     ingested_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -106,15 +111,15 @@ CREATE INDEX IF NOT EXISTS idx_port_vessel_time ON port_visits(vessel_id, start_
 CREATE INDEX IF NOT EXISTS idx_port_start       ON port_visits(start_time DESC);
 CREATE INDEX IF NOT EXISTS idx_port_flag        ON port_visits(port_flag);
 
--- Query: "which vessels made port visits in the last 30 days"
--- SELECT v.vessel_name, pv.port_name, pv.port_flag, pv.start_time, pv.duration_hours
+-- Query: "which vessels made port calls in the last 90 days (approx.)"
+-- SELECT v.vessel_name, pv.port_name, pv.port_flag, pv.start_time::date AS approx_arrival
 -- FROM port_visits pv JOIN vessels v ON v.id = pv.vessel_id
--- WHERE pv.start_time >= NOW() - INTERVAL '30 days'
+-- WHERE pv.start_time >= NOW() - INTERVAL '90 days'
 -- ORDER BY pv.start_time DESC;
 
--- Query: "which vessels have landed at which regions on what date"
--- SELECT v.vessel_name, pv.port_name, pv.port_flag, pv.start_time::date
--- FROM port_visits pv JOIN vessels v ON v.id = pv.vessel_id
+-- Query: "port call history for a specific vessel"
+-- SELECT pv.port_name, pv.port_flag, pv.start_time::date AS approx_arrival
+-- FROM port_visits pv WHERE pv.vessel_id = <id>
 -- ORDER BY pv.start_time DESC;
 
 CREATE TABLE IF NOT EXISTS encounters (

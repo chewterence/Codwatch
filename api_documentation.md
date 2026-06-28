@@ -22,9 +22,13 @@
 |---|---|---|
 | Vessel identity | `public-global-vessel-identity:latest` | 2012 – present |
 | Fishing events | `public-global-fishing-events:latest` | 2012 – 96 hrs ago |
+| Loitering events | `public-global-loitering-events:latest` | 2012 – present; each event has `vessel.nextPort` with port name/flag/portVisitEventId |
 | Fishing effort (4wings) | `public-global-fishing-effort:latest` | 2012 – 96 hrs ago |
+| Encounters | `public-global-encounters-events:latest` | 2012 – present |
+| AIS gaps | `public-global-gaps-events:latest` | 2012 – present |
 | SAR vessel detections | `public-global-sar-presence:latest` | 2017 – 5 days ago |
 | Vessel presence | `public-global-presence:latest` | 2012 – 96 hrs ago |
+| ~~Port visits~~ | ~~`public-global-port-visits-c2:latest`~~ | **DEPRECATED** — 404 on all variants (c1/c2/c3/c4). Use loitering events + `nextPort` instead. |
 
 ---
 
@@ -92,6 +96,40 @@ GET /events
 ```
 GET /events/{eventId}?datasets[0]=public-global-fishing-events:latest
 ```
+
+#### Loitering event schema (key fields)
+
+Used as the port visit data source. Each event represents a vessel moving at low speed (< 2 knots) for an extended period:
+
+```json
+{
+  "id": "...",
+  "type": "loitering",
+  "start": "2023-01-18T12:59:00.000Z",
+  "end": "2023-01-18T18:59:05.000Z",
+  "position": { "lat": -66.7, "lon": 75.8 },
+  "regions": { "fao": ["58", "58.4", "58.4.2"], "rfmo": ["CCAMLR"], ... },
+  "vessel": {
+    "id": "GFW-vessel-id",
+    "name": "VESSEL NAME",
+    "ssvid": "503526000",
+    "flag": "AUS",
+    "nextPort": {
+      "id": "mus-portlouis",
+      "flag": "MUS",
+      "name": "PORT LOUIS",
+      "portVisitEventId": "c3ab2ab8ae126d279ca30935dbdc2337"
+    }
+  },
+  "loitering": {
+    "totalTimeHours": 6.0,
+    "totalDistanceKm": 15.6,
+    "averageSpeedKnots": 1.4
+  }
+}
+```
+
+`vessel.nextPort` is the port the vessel visited after this loitering event. Multiple loitering events can reference the same `portVisitEventId` — deduplicate to get unique port calls.
 
 #### Event statistics
 ```
@@ -247,12 +285,12 @@ while True:
 
 GFW has no species field. Use this proxy approach:
 
-1. **Find vessels**: Search events in FAO areas `48`, `58`, `88` (CCAMLR waters) with `event-type=FISHING`
+1. **Find vessels**: Search events in FAO areas `48`, `58`, `88` (CCAMLR waters) with fishing dataset.
 2. **Filter gear**: Patagonian toothfish = `longlines`. Exclude squid jiggers, purse seines.
-3. **Check authorization**: `fishing.vesselPublicAuthorizationStatus` — flag vessels without CCAMLR authorization as potential IUU risk.
+3. **Check authorization**: `fishing.vesselPublicAuthorizationStatus` — flag vessels without CCAMLR authorization as potential IUU risk. Note: unreliable for this fleet (56% false positives) — cross-check against CCAMLR vessel list instead.
 4. **Cross-check RFMO**: `regions.rfmo` should include `CCAMLR` for legitimate activity.
-5. **AIS gaps**: Use `event-type=AIS_OFF` to detect potential dark vessel behavior.
-6. **Port visits**: `event-type=PORT_VISIT` to track where catch is landed.
+5. **AIS gaps**: Dataset `public-global-gaps-events:latest` — `gap_hours` and `distance_km` indicate dark vessel behavior.
+6. **Port visits**: Use `public-global-loitering-events:latest`. Each loitering event has `vessel.nextPort.{name, flag, id, portVisitEventId}`. Deduplicate by `portVisitEventId` to get unique port calls. Direct port visit datasets (`public-global-port-visits-c2:latest` etc.) are deprecated — all return 404.
 
 Key flags to watch: CHN, RUS, ESP, KOR, GBR (via South Georgia) are major toothfish fishing nations.
 

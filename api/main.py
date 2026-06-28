@@ -264,3 +264,45 @@ def get_ais_gaps(
         ORDER BY ag.gap_hours DESC
         LIMIT %s
     """, params + [limit])
+
+
+# ── Vessel Timeline ────────────────────────────────────────────────────────────
+
+@app.get("/api/vessels/{vessel_id}/timeline")
+def get_vessel_timeline(
+    vessel_id: int,
+    months: int = Query(12, le=60),
+):
+    fishing = query("""
+        SELECT event_id, start_time, end_time, duration_hours,
+               lat, lon, fao_areas, rfmo_areas
+        FROM fishing_events
+        WHERE vessel_id = %s
+          AND start_time >= NOW() - (%s || ' months')::interval
+        ORDER BY start_time ASC
+    """, [vessel_id, months])
+
+    ports = query("""
+        SELECT event_id, start_time, end_time, duration_hours,
+               lat, lon, port_name, port_flag, confidence
+        FROM port_visits
+        WHERE vessel_id = %s
+          AND start_time >= NOW() - (%s || ' months')::interval
+        ORDER BY start_time ASC
+    """, [vessel_id, months])
+
+    gaps = query("""
+        SELECT event_id, start_time, end_time, gap_hours,
+               lat_off, lon_off, lat_on, lon_on, distance_km, fao_areas
+        FROM ais_gaps
+        WHERE vessel_id = %s
+          AND gap_hours >= 24
+          AND start_time >= NOW() - (%s || ' months')::interval
+        ORDER BY start_time ASC
+    """, [vessel_id, months])
+
+    return {
+        "fishing_events": fishing,
+        "port_visits":    ports,
+        "ais_gaps":       gaps,
+    }
