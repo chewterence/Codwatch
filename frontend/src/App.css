@@ -1,0 +1,135 @@
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ── Top bar ── */
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 0 20px;
+  height: 52px;
+  background: #13162a;
+  border-bottom: 1px solid #222644;
+  flex-shrink: 0;
+  z-index: 100;
+}
+
+.topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.brand-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #3b82f6;
+  box-shadow: 0 0 8px #3b82f6;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+.topbar-stats {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+
+.stat-badge {
+  display: flex;
+  flex-direction: column;
+  padding: 4px 12px;
+  border-radius: 6px;
+  background: #1e2240;
+  border: 1px solid #2d3260;
+}
+
+.stat-badge--highlight {
+  border-color: #3b82f6;
+  background: #1a2545;
+}
+
+.stat-label {
+  font-size: 9px;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.loading-text {
+  color: #4a5568;
+  font-size: 12px;
+}
+
+.topbar-selection {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: #1e3a5f;
+  border: 1px solid #3b82f6;
+  border-radius: 6px;
+  margin-left: auto;
+}
+
+.selection-label {
+  color: #64748b;
+  font-size: 11px;
+}
+
+.selection-name {
+  color: #93c5fd;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.clear-btn {
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 0 2px;
+  line-height: 1;
+}
+
+.clear-btn:hover {
+  color: #e2e8f0;
+}
+
+/* ── Workspace ── */
+
+.workspace {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.main-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}

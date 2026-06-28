@@ -1,1 +1,40 @@
+# ── Secrets ──────────────────────────────────────────────────
 secrets.json
+
+# ── Python ───────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+
+# ── Node / Frontend ──────────────────────────────────────────
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# ── macOS ────────────────────────────────────────────────────
+.DS_Store
+.AppleDouble
+
+# ── Logs & temp ──────────────────────────────────────────────
+*.log
+*.tmp
+*.pid
+
+# ── Docker ───────────────────────────────────────────────────
+# (Dockerfile and docker-compose.yml ARE tracked — only ignore local overrides)
+docker-compose.override.yml
+.env
+.env.local
+
+# ── IDE ──────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp

@@ -1,0 +1,140 @@
+.events-panel {
+  height: 240px;
+  background: #0a0c18;
+  border-top: 1px solid #1e2240;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.events-tabs {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 8px;
+  border-bottom: 1px solid #1e2240;
+  flex-shrink: 0;
+  background: #0d0f1a;
+}
+
+.tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: #475569;
+  font-size: 12px;
+  cursor: pointer;
+  transition: color 0.1s, border-color 0.1s;
+  white-space: nowrap;
+}
+
+.tab-btn:hover {
+  color: #94a3b8;
+}
+
+.tab-btn--active {
+  color: #93c5fd;
+  border-bottom-color: #3b82f6;
+}
+
+.tab-count {
+  background: #1e2240;
+  color: #64748b;
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  min-width: 22px;
+  text-align: center;
+}
+
+.tab-btn--active .tab-count {
+  background: #1e3a5f;
+  color: #93c5fd;
+}
+
+.events-context {
+  color: #334155;
+  font-size: 11px;
+  padding-left: 8px;
+}
+
+.events-body {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.events-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.events-table thead {
+  position: sticky;
+  top: 0;
+  background: #0d1020;
+  z-index: 1;
+}
+
+.events-table th {
+  padding: 6px 12px;
+  text-align: left;
+  color: #374151;
+  font-weight: 600;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid #1e2240;
+}
+
+.events-table td {
+  padding: 5px 12px;
+  color: #94a3b8;
+  border-bottom: 1px solid #0f1226;
+}
+
+.events-table tr:hover td {
+  background: #111428;
+}
+
+.row--alert td {
+  background: #1a0f00;
+}
+
+.row--alert:hover td {
+  background: #221400;
+}
+
+.cell-vessel {
+  color: #cbd5e1;
+  font-weight: 500;
+}
+
+.badge {
+  display: inline-block;
+  padding: 1px 7px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.badge--ok {
+  background: #052e16;
+  color: #16a34a;
+}
+
+.badge--warn {
+  background: #2d1500;
+  color: #d97706;
+}
+
+.empty-state {
+  padding: 40px;
+  text-align: center;
+  color: #2d3148;
+  font-size: 12px;
+}

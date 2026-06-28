@@ -1,0 +1,55 @@
+.map-wrapper {
+  flex: 1;
+  position: relative;
+  min-height: 0;
+}
+
+.map-loading {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  background: rgba(13, 15, 26, 0.85);
+  color: #64748b;
+  font-size: 11px;
+  padding: 4px 12px;
+  border-radius: 4px;
+}
+
+.map-overlay {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  z-index: 1000;
+  background: rgba(13, 15, 26, 0.8);
+  color: #475569;
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+.map-popup {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 12px;
+  min-width: 140px;
+}
+
+.map-popup strong {
+  color: #1e293b;
+  font-size: 13px;
+}
+
+.popup-warn {
+  color: #b45309;
+  font-weight: 600;
+}
+
+/* Fix Leaflet popup default styles in dark context */
+.leaflet-popup-content-wrapper {
+  border-radius: 6px !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
+}
