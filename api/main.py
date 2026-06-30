@@ -70,6 +70,8 @@ def get_summary():
 
 @app.get("/api/vessels")
 def get_vessels():
+    # Pre-aggregate each event table separately before joining to avoid the
+    # cartesian explosion that COUNT(DISTINCT ...) on triple-joined tables causes.
     return query("""
         SELECT
             v.id,
@@ -83,15 +85,21 @@ def get_vessels():
             v.gfw_match_confidence,
             v.eleginoides_authorized,
             v.mawsoni_authorized,
-            COUNT(DISTINCT fe.event_id)   AS fishing_event_count,
-            MAX(fe.start_time)::date       AS last_fishing_date,
-            COUNT(DISTINCT e.event_id)    AS encounter_count,
-            COUNT(DISTINCT ag.event_id)   AS ais_gap_count
+            COALESCE(fe.cnt, 0)      AS fishing_event_count,
+            fe.last_date             AS last_fishing_date,
+            COALESCE(e.cnt, 0)       AS encounter_count,
+            COALESCE(ag.cnt, 0)      AS ais_gap_count
         FROM vessels v
-        LEFT JOIN fishing_events fe ON fe.vessel_id = v.id
-        LEFT JOIN encounters      e  ON e.vessel_id  = v.id
-        LEFT JOIN ais_gaps        ag ON ag.vessel_id = v.id
-        GROUP BY v.id
+        LEFT JOIN (
+            SELECT vessel_id, COUNT(*) AS cnt, MAX(start_time)::date AS last_date
+            FROM fishing_events GROUP BY vessel_id
+        ) fe ON fe.vessel_id = v.id
+        LEFT JOIN (
+            SELECT vessel_id, COUNT(*) AS cnt FROM encounters GROUP BY vessel_id
+        ) e ON e.vessel_id = v.id
+        LEFT JOIN (
+            SELECT vessel_id, COUNT(*) AS cnt FROM ais_gaps GROUP BY vessel_id
+        ) ag ON ag.vessel_id = v.id
         ORDER BY fishing_event_count DESC, v.vessel_name
     """)
 
