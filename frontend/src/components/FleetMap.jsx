@@ -33,30 +33,42 @@ function MapFlyTo({ events, selectedVessel }) {
   return null
 }
 
-export default function FleetMap({ selectedVessel, includedIds }) {
-  const [allEvents, setAllEvents] = useState([])
+export default function FleetMap({ selectedVessel, includedIds, onSelectVesselId }) {
+  const [events, setEvents] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    if (!selectedVessel && includedIds && includedIds.size === 0) {
+      setEvents([])
+      setLoading(false)
+      return
+    }
+
     setLoading(true)
     const params = new URLSearchParams({ limit: 800 })
-    if (selectedVessel) params.set('vessel_id', selectedVessel.id)
-    else params.set('days', 180)  // last 6 months when no vessel selected
+    if (selectedVessel) {
+      params.set('vessel_id', selectedVessel.id)
+    } else {
+      params.set('days', 180)  // last 6 months when no vessel selected
+      if (includedIds) params.set('vessel_ids', [...includedIds].join(','))
+    }
 
     fetch(`/api/fishing-events?${params}`)
       .then(r => r.json())
-      .then(data => { setAllEvents(data); setLoading(false) })
+      .then(data => { setEvents(data); setLoading(false) })
       .catch(() => setLoading(false))
-  }, [selectedVessel])
+  }, [selectedVessel, includedIds])
 
-  // When viewing the whole fleet, only show vessels the user has included
-  const events = selectedVessel || !includedIds
-    ? allEvents
-    : allEvents.filter(e => includedIds.has(e.vessel_id))
+  const noVesselsTracked = !selectedVessel && includedIds && includedIds.size === 0
 
   return (
     <div className="map-wrapper">
       {loading && <div className="map-loading">Loading events…</div>}
+      {noVesselsTracked && (
+        <div className="map-empty-state">
+          No vessels tracked — head to <strong>Vessel Tracker</strong> to select vessels.
+        </div>
+      )}
       <MapContainer
         center={[-55, 20]}
         zoom={3}
@@ -94,6 +106,11 @@ export default function FleetMap({ selectedVessel, includedIds }) {
                 {e.auth_status === 'not_matching_relevant_public_authorization' && (
                   <span className="popup-warn">⚠ Not authorized</span>
                 )}
+                {onSelectVesselId && (
+                  <button className="popup-detail-link" onClick={() => onSelectVesselId(e.vessel_id)}>
+                    View vessel details →
+                  </button>
+                )}
               </div>
             </Popup>
           </CircleMarker>
@@ -102,7 +119,7 @@ export default function FleetMap({ selectedVessel, includedIds }) {
       <div className="map-overlay">
         {selectedVessel
           ? `${events.length} events — ${selectedVessel.vessel_name}`
-          : `${events.length} events — last 6 months (all vessels)`}
+          : `${events.length} events — last 6 months (${includedIds ? includedIds.size : 'all'} tracked vessels)`}
       </div>
     </div>
   )

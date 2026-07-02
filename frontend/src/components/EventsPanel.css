@@ -143,6 +143,15 @@
   font-weight: 500;
 }
 
+.cell-vessel--clickable {
+  cursor: pointer;
+}
+
+.cell-vessel--clickable:hover {
+  color: #93c5fd;
+  text-decoration: underline;
+}
+
 .badge {
   display: inline-block;
   padding: 1px 7px;

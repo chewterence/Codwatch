@@ -1,42 +1,63 @@
-.sidebar {
-  width: 220px;
-  background: #0f1120;
-  border-right: 1px solid #1e2240;
+.tracker-page {
   display: flex;
   flex-direction: column;
-  flex-shrink: 0;
+  flex: 1;
   overflow: hidden;
 }
 
-.sidebar-header {
+.tracker-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 14px;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 2px;
-  color: #475569;
+  padding: 16px 24px;
   border-bottom: 1px solid #1e2240;
   flex-shrink: 0;
 }
 
-.sidebar-count {
-  font-size: 10px;
+.tracker-title {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #e2e8f0;
+  text-transform: uppercase;
+}
+
+.tracker-count {
+  font-size: 12px;
   color: #3b82f6;
-  letter-spacing: 0;
   font-weight: 500;
 }
 
-.sidebar-search {
-  padding: 8px 10px;
+.tracker-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 24px;
   border-bottom: 1px solid #1e2240;
   flex-shrink: 0;
 }
 
-.sidebar-search input {
-  width: 100%;
+.tracker-search {
+  width: 240px;
   box-sizing: border-box;
+  background: #171933;
+  border: 1px solid #2d3260;
+  border-radius: 5px;
+  padding: 7px 10px;
+  font-size: 12px;
+  color: #cbd5e1;
+  outline: none;
+}
+
+.tracker-search:focus {
+  border-color: #3b82f6;
+}
+
+.tracker-search::placeholder {
+  color: #475569;
+}
+
+.tracker-sort-select {
   background: #171933;
   border: 1px solid #2d3260;
   border-radius: 5px;
@@ -46,135 +67,96 @@
   outline: none;
 }
 
-.sidebar-search input:focus {
+.tracker-sort-select:focus {
   border-color: #3b82f6;
 }
 
-.sidebar-search input::placeholder {
-  color: #475569;
-}
-
-.sidebar-toolbar {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 10px;
-  border-bottom: 1px solid #1e2240;
-  flex-shrink: 0;
-}
-
-.sidebar-sort-select {
-  min-width: 0;
-  background: #171933;
-  border: 1px solid #2d3260;
-  border-radius: 5px;
-  padding: 4px 6px;
-  font-size: 11px;
-  color: #cbd5e1;
-  outline: none;
-}
-
-.sidebar-sort-select:focus {
-  border-color: #3b82f6;
-}
-
-.sidebar-sort-dir {
+.tracker-sort-dir {
   background: #171933;
   border: 1px solid #2d3260;
   border-radius: 5px;
   color: #cbd5e1;
-  font-size: 12px;
-  width: 24px;
-  height: 24px;
+  font-size: 13px;
+  width: 28px;
+  height: 28px;
   line-height: 1;
   cursor: pointer;
   flex-shrink: 0;
 }
 
-.sidebar-sort-dir:hover {
+.tracker-sort-dir:hover {
   border-color: #3b82f6;
 }
 
-.sidebar-toolbar-spacer {
+.tracker-toolbar-spacer {
   flex: 1;
 }
 
-.sidebar-link-btn {
+.tracker-link-btn {
   background: none;
   border: none;
   color: #3b82f6;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
   cursor: pointer;
-  padding: 2px 4px;
+  padding: 4px 6px;
   flex-shrink: 0;
 }
 
-.sidebar-link-btn:hover {
+.tracker-link-btn:hover {
   color: #93c5fd;
   text-decoration: underline;
 }
 
-.vessel-list {
+.tracker-scroll {
   overflow-y: auto;
   flex: 1;
-  padding: 6px;
+  padding: 18px 24px;
 }
 
-.sidebar-empty {
-  padding: 16px 10px;
-  font-size: 11px;
-  color: #475569;
-  text-align: center;
+.tracker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 10px;
 }
 
-.vessel-card {
-  padding: 8px 10px;
-  border-radius: 6px;
+.tracker-card {
+  padding: 12px 14px;
+  border-radius: 8px;
   cursor: pointer;
-  border: 1px solid transparent;
+  border: 1px solid #1e2240;
+  background: #12142a;
   transition: background 0.12s, border-color 0.12s;
-  margin-bottom: 3px;
 }
 
-.vessel-card:hover {
+.tracker-card:hover {
   background: #1a1d35;
   border-color: #2d3260;
 }
 
-.vessel-card--selected {
-  background: #1a2d4f !important;
-  border-color: #3b82f6 !important;
-}
-
-.vessel-card--untracked {
+.tracker-card--untracked {
   opacity: 0.45;
   cursor: default;
 }
 
-.vessel-card-header {
+.tracker-card-header {
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-bottom: 4px;
+  gap: 7px;
+  margin-bottom: 8px;
 }
 
-.vessel-include-checkbox {
+.tracker-include-checkbox {
   flex-shrink: 0;
-  width: 13px;
-  height: 13px;
+  width: 14px;
+  height: 14px;
   accent-color: #3b82f6;
   cursor: pointer;
 }
 
-.vessel-flag {
+.tracker-name {
   font-size: 13px;
-  flex-shrink: 0;
-}
-
-.vessel-name {
-  font-size: 12px;
   font-weight: 500;
   color: #cbd5e1;
   white-space: nowrap;
@@ -183,8 +165,9 @@
   flex: 1;
 }
 
-.vessel-card--selected .vessel-name {
-  color: #93c5fd;
+.tracker-flag {
+  font-size: 14px;
+  flex-shrink: 0;
 }
 
 .no-gfw-badge {
@@ -196,24 +179,31 @@
   flex-shrink: 0;
 }
 
-.vessel-card-stats {
+.tracker-card-stats {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   font-size: 11px;
   color: #475569;
 }
 
-.vessel-last-seen {
+.tracker-last-seen {
   margin-left: auto;
   font-size: 10px;
   color: #374151;
 }
 
-.sidebar-divider {
+.tracker-divider {
   font-size: 10px;
   color: #374151;
   text-transform: uppercase;
   letter-spacing: 1px;
-  padding: 10px 6px 4px;
+  margin: 18px 0 10px;
+}
+
+.tracker-empty {
+  padding: 40px 0;
+  font-size: 12px;
+  color: #475569;
+  text-align: center;
 }

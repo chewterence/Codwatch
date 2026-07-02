@@ -110,6 +110,7 @@ def get_vessels():
 @app.get("/api/fishing-events")
 def get_fishing_events(
     vessel_id: int = Query(None),
+    vessel_ids: str = Query(None),
     limit: int = Query(500, le=2000),
     days: int = Query(None),
 ):
@@ -119,6 +120,10 @@ def get_fishing_events(
     if vessel_id:
         conditions.append("fe.vessel_id = %s")
         params.append(vessel_id)
+
+    if vessel_ids:
+        conditions.append("fe.vessel_id = ANY(%s)")
+        params.append([int(v) for v in vessel_ids.split(",") if v])
 
     if days:
         conditions.append("fe.start_time >= NOW() - (%s || ' days')::interval")
@@ -156,6 +161,7 @@ def get_fishing_events(
 @app.get("/api/port-visits")
 def get_port_visits(
     vessel_id: int = Query(None),
+    vessel_ids: str = Query(None),
     limit: int = Query(100, le=500),
 ):
     conditions = []
@@ -164,6 +170,10 @@ def get_port_visits(
     if vessel_id:
         conditions.append("pv.vessel_id = %s")
         params.append(vessel_id)
+
+    if vessel_ids:
+        conditions.append("pv.vessel_id = ANY(%s)")
+        params.append([int(v) for v in vessel_ids.split(",") if v])
 
     where = ("WHERE " + " AND ".join(conditions)) if conditions else ""
 
@@ -194,6 +204,7 @@ def get_port_visits(
 @app.get("/api/encounters")
 def get_encounters(
     vessel_id: int = Query(None),
+    vessel_ids: str = Query(None),
     limit: int = Query(100, le=500),
 ):
     conditions = []
@@ -202,6 +213,10 @@ def get_encounters(
     if vessel_id:
         conditions.append("e.vessel_id = %s")
         params.append(vessel_id)
+
+    if vessel_ids:
+        conditions.append("e.vessel_id = ANY(%s)")
+        params.append([int(v) for v in vessel_ids.split(",") if v])
 
     where = ("WHERE " + " AND ".join(conditions)) if conditions else ""
 
@@ -235,6 +250,7 @@ def get_encounters(
 @app.get("/api/ais-gaps")
 def get_ais_gaps(
     vessel_id: int = Query(None),
+    vessel_ids: str = Query(None),
     min_hours: float = Query(None),
     limit: int = Query(100, le=500),
 ):
@@ -244,6 +260,10 @@ def get_ais_gaps(
     if vessel_id:
         conditions.append("ag.vessel_id = %s")
         params.append(vessel_id)
+
+    if vessel_ids:
+        conditions.append("ag.vessel_id = ANY(%s)")
+        params.append([int(v) for v in vessel_ids.split(",") if v])
 
     if min_hours:
         conditions.append("ag.gap_hours >= %s")
@@ -323,6 +343,7 @@ def get_vessel_timeline(
 def get_season_chart(
     species:     str = Query("all"),      # all | eleginoides | mawsoni
     granularity: str = Query("monthly"),  # monthly | weekly
+    vessel_ids:  str = Query(None),
 ):
     if species == "mawsoni":
         species_filter = "AND '88' = ANY(fe.fao_areas)"
@@ -330,6 +351,11 @@ def get_season_chart(
         species_filter = "AND NOT ('88' = ANY(fe.fao_areas))"
     else:
         species_filter = ""
+
+    params = []
+    if vessel_ids:
+        species_filter += " AND fe.vessel_id = ANY(%s)"
+        params.append([int(v) for v in vessel_ids.split(",") if v])
 
     if granularity == "weekly":
         bucket_sql = """
@@ -370,7 +396,7 @@ def get_season_chart(
         GROUP BY season_year, bucket
         HAVING {bucket_sql} BETWEEN 1 AND {max_bucket}
         ORDER BY season_year, bucket
-    """)
+    """, params)
 
     season_years = sorted(set(r["season_year"] for r in rows))
 

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { flagFor } from '../flags'
-import './VesselSidebar.css'
+import './VesselTracker.css'
 
 const SORT_OPTIONS = [
   { key: 'name',       label: 'Name' },
@@ -20,45 +20,45 @@ function sortValue(vessel, key) {
   }
 }
 
-function VesselCard({ vessel, selected, onSelect, included, onToggleInclude }) {
-  const hasGfw    = !!vessel.gfw_vessel_id
-  const lastSeen  = vessel.last_fishing_date
+function VesselCard({ vessel, included, onToggleInclude, onViewDetail }) {
+  const hasGfw   = !!vessel.gfw_vessel_id
+  const lastSeen = vessel.last_fishing_date
     ? new Date(vessel.last_fishing_date).toLocaleDateString('en-AU', { month: 'short', day: 'numeric', year: '2-digit' })
     : '—'
 
   return (
     <div
-      className={`vessel-card ${selected ? 'vessel-card--selected' : ''} ${!hasGfw ? 'vessel-card--untracked' : ''}`}
-      onClick={() => hasGfw && onSelect(vessel)}
+      className={`tracker-card ${!hasGfw ? 'tracker-card--untracked' : ''}`}
+      onClick={() => hasGfw && onViewDetail(vessel)}
     >
-      <div className="vessel-card-header">
+      <div className="tracker-card-header">
         {hasGfw && (
           <input
             type="checkbox"
-            className="vessel-include-checkbox"
+            className="tracker-include-checkbox"
             checked={included}
             onChange={() => onToggleInclude(vessel.id)}
             onClick={e => e.stopPropagation()}
-            title={included ? 'Included on map' : 'Excluded from map'}
+            title={included ? 'Tracked' : 'Not tracked'}
           />
         )}
-        <span className="vessel-name">{vessel.vessel_name}</span>
-        <span className="vessel-flag">{flagFor(vessel.flag)}</span>
+        <span className="tracker-name">{vessel.vessel_name}</span>
+        <span className="tracker-flag">{flagFor(vessel.flag)}</span>
         {!hasGfw && <span className="no-gfw-badge">no GFW</span>}
       </div>
       {hasGfw && (
-        <div className="vessel-card-stats">
+        <div className="tracker-card-stats">
           <span title="Fishing events">⚓ {Number(vessel.fishing_event_count).toLocaleString()}</span>
           <span title="Encounters">🤝 {vessel.encounter_count}</span>
           <span title="AIS gaps">📡 {vessel.ais_gap_count}</span>
-          <span className="vessel-last-seen" title="Last fishing event">{lastSeen}</span>
+          <span className="tracker-last-seen" title="Last fishing event">{lastSeen}</span>
         </div>
       )}
     </div>
   )
 }
 
-export default function VesselSidebar({ vessels, selected, onSelect, includedIds, onToggleInclude, onSetIncluded }) {
+export default function VesselTracker({ vessels, includedIds, onToggleInclude, onSetIncluded, onViewDetail }) {
   const [query, setQuery]     = useState('')
   const [sortKey, setSortKey] = useState('name')
   const [sortDir, setSortDir] = useState(1) // 1 = asc, -1 = desc
@@ -74,29 +74,29 @@ export default function VesselSidebar({ vessels, selected, onSelect, includedIds
     return 0
   }
 
-  const tracked   = vessels.filter(v => v.gfw_vessel_id && matches(v)).sort(sortFn)
-  const untracked = vessels.filter(v => !v.gfw_vessel_id && matches(v)).sort(sortFn)
-  const totalTracked = vessels.filter(v => v.gfw_vessel_id).length
+  const tracked       = vessels.filter(v => v.gfw_vessel_id && matches(v)).sort(sortFn)
+  const untracked     = vessels.filter(v => !v.gfw_vessel_id && matches(v)).sort(sortFn)
+  const totalTracked  = vessels.filter(v => v.gfw_vessel_id).length
 
   const toggleSortDir = () => setSortDir(d => -d)
 
   return (
-    <aside className="sidebar">
-      <div className="sidebar-header">
-        FLEET
-        <span className="sidebar-count">{includedIds.size} / {totalTracked} on map</span>
+    <div className="tracker-page">
+      <div className="tracker-header">
+        <span className="tracker-title">Vessel Tracker</span>
+        <span className="tracker-count">{includedIds.size} / {totalTracked} tracked</span>
       </div>
-      <div className="sidebar-search">
+
+      <div className="tracker-toolbar">
         <input
           type="text"
+          className="tracker-search"
           placeholder="Search vessels…"
           value={query}
           onChange={e => setQuery(e.target.value)}
         />
-      </div>
-      <div className="sidebar-toolbar">
         <select
-          className="sidebar-sort-select"
+          className="tracker-sort-select"
           value={sortKey}
           onChange={e => setSortKey(e.target.value)}
           title="Sort by"
@@ -106,39 +106,45 @@ export default function VesselSidebar({ vessels, selected, onSelect, includedIds
           ))}
         </select>
         <button
-          className="sidebar-sort-dir"
+          className="tracker-sort-dir"
           onClick={toggleSortDir}
           title={sortDir === 1 ? 'Ascending' : 'Descending'}
         >
           {sortDir === 1 ? '↑' : '↓'}
         </button>
-        <div className="sidebar-toolbar-spacer" />
-        <button className="sidebar-link-btn" onClick={() => onSetIncluded(tracked.map(v => v.id))}>All</button>
-        <button className="sidebar-link-btn" onClick={() => onSetIncluded([])}>None</button>
+        <div className="tracker-toolbar-spacer" />
+        <button className="tracker-link-btn" onClick={() => onSetIncluded(tracked.map(v => v.id))}>Select all</button>
+        <button className="tracker-link-btn" onClick={() => onSetIncluded([])}>Select none</button>
       </div>
-      <div className="vessel-list">
-        {tracked.map(v => (
-          <VesselCard
-            key={v.id}
-            vessel={v}
-            selected={selected?.id === v.id}
-            onSelect={onSelect}
-            included={includedIds.has(v.id)}
-            onToggleInclude={onToggleInclude}
-          />
-        ))}
+
+      <div className="tracker-scroll">
+        <div className="tracker-grid">
+          {tracked.map(v => (
+            <VesselCard
+              key={v.id}
+              vessel={v}
+              included={includedIds.has(v.id)}
+              onToggleInclude={onToggleInclude}
+              onViewDetail={onViewDetail}
+            />
+          ))}
+        </div>
+
         {untracked.length > 0 && (
           <>
-            <div className="sidebar-divider">No GFW match ({untracked.length})</div>
-            {untracked.map(v => (
-              <VesselCard key={v.id} vessel={v} selected={false} onSelect={onSelect} />
-            ))}
+            <div className="tracker-divider">No GFW match ({untracked.length})</div>
+            <div className="tracker-grid">
+              {untracked.map(v => (
+                <VesselCard key={v.id} vessel={v} included={false} onToggleInclude={() => {}} onViewDetail={() => {}} />
+              ))}
+            </div>
           </>
         )}
+
         {tracked.length === 0 && untracked.length === 0 && (
-          <div className="sidebar-empty">No vessels match "{query}"</div>
+          <div className="tracker-empty">No vessels match "{query}"</div>
         )}
       </div>
-    </aside>
+    </div>
   )
 }

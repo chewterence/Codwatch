@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react'
-import VesselSidebar from './components/VesselSidebar'
+import { useState, useEffect, useRef } from 'react'
+import VesselTracker from './components/VesselTracker'
 import FleetMap from './components/FleetMap'
 import EventsPanel from './components/EventsPanel'
 import VesselDetail from './components/VesselDetail'
 import SupplyIntelligence from './components/SupplyIntelligence'
 import './App.css'
+
+const TRACKED_IDS_KEY = 'codwatch.trackedVesselIds'
 
 function StatBadge({ label, value, highlight }) {
   return (
@@ -21,16 +23,34 @@ export default function App() {
   const [selectedVessel, setSelectedVessel] = useState(null)
   const [detailMode, setDetailMode]         = useState(false)
   const [activeTab, setActiveTab]           = useState('fishing')
-  const [activeView, setActiveView]         = useState('fleet')
+  const [activeView, setActiveView]         = useState('tracker')
   const [includedIds, setIncludedIds]       = useState(new Set())
+  const hydrated = useRef(false)
 
   useEffect(() => {
     fetch('/api/summary').then(r => r.json()).then(setSummary)
     fetch('/api/vessels').then(r => r.json()).then(data => {
       setVessels(data)
-      setIncludedIds(new Set(data.filter(v => v.gfw_vessel_id).map(v => v.id)))
+      const trackedIds = new Set(data.filter(v => v.gfw_vessel_id).map(v => v.id))
+
+      let initial = trackedIds
+      const stored = localStorage.getItem(TRACKED_IDS_KEY)
+      if (stored) {
+        try {
+          const storedIds = JSON.parse(stored).filter(id => trackedIds.has(id))
+          initial = new Set(storedIds)
+        } catch { /* fall back to all-tracked default */ }
+      }
+
+      setIncludedIds(initial)
+      hydrated.current = true
     })
   }, [])
+
+  useEffect(() => {
+    if (!hydrated.current) return
+    localStorage.setItem(TRACKED_IDS_KEY, JSON.stringify([...includedIds]))
+  }, [includedIds])
 
   const handleToggleInclude = (vesselId) => {
     setIncludedIds(prev => {
@@ -48,6 +68,12 @@ export default function App() {
   const handleVesselSelect = (vessel) => {
     setSelectedVessel(vessel)
     setDetailMode(true)
+    setActiveView('fleet')
+  }
+
+  const handleSelectVesselId = (vesselId) => {
+    const vessel = vessels.find(v => v.id === vesselId)
+    if (vessel) handleVesselSelect(vessel)
   }
 
   const handleBack = () => {
@@ -74,6 +100,12 @@ export default function App() {
         </div>
 
         <nav className="topbar-nav">
+          <button
+            className={`nav-tab ${activeView === 'tracker' ? 'nav-tab--active' : ''}`}
+            onClick={() => handleViewChange('tracker')}
+          >
+            Vessel Tracker
+          </button>
           <button
             className={`nav-tab ${activeView === 'fleet' ? 'nav-tab--active' : ''}`}
             onClick={() => handleViewChange('fleet')}
@@ -107,32 +139,42 @@ export default function App() {
       </header>
 
       <div className="workspace">
-        {activeView === 'fleet' && (
-          <VesselSidebar
+        {activeView === 'tracker' && (
+          <VesselTracker
             vessels={vessels}
-            selected={selectedVessel}
-            onSelect={handleVesselSelect}
             includedIds={includedIds}
             onToggleInclude={handleToggleInclude}
             onSetIncluded={handleSetIncluded}
+            onViewDetail={handleVesselSelect}
           />
         )}
-        <div className="main-panel">
-          {activeView === 'supply' ? (
-            <SupplyIntelligence />
-          ) : showDetail ? (
-            <VesselDetail vessel={selectedVessel} onBack={handleBack} />
-          ) : (
-            <>
-              <FleetMap selectedVessel={selectedVessel} includedIds={includedIds} />
-              <EventsPanel
-                selectedVessel={selectedVessel}
-                activeTab={activeTab}
-                onTabChange={setActiveTab}
-              />
-            </>
-          )}
-        </div>
+        {activeView === 'supply' && (
+          <div className="main-panel">
+            <SupplyIntelligence includedIds={includedIds} />
+          </div>
+        )}
+        {activeView === 'fleet' && (
+          <div className="main-panel">
+            {showDetail ? (
+              <VesselDetail vessel={selectedVessel} onBack={handleBack} />
+            ) : (
+              <>
+                <FleetMap
+                  selectedVessel={selectedVessel}
+                  includedIds={includedIds}
+                  onSelectVesselId={handleSelectVesselId}
+                />
+                <EventsPanel
+                  selectedVessel={selectedVessel}
+                  includedIds={includedIds}
+                  activeTab={activeTab}
+                  onTabChange={setActiveTab}
+                  onSelectVesselId={handleSelectVesselId}
+                />
+              </>
+            )}
+          </div>
+        )}
       </div>
     </div>
   )

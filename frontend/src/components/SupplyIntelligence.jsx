@@ -100,12 +100,14 @@ const sharedYAxis = (formatter) => ({
   width: 44,
 })
 
-export default function SupplyIntelligence() {
+export default function SupplyIntelligence({ includedIds }) {
   const [species, setSpecies]           = useState('all')
   const [granularity, setGranularity]   = useState('monthly')
   const [rawData, setRawData]           = useState(null)
   const [loading, setLoading]           = useState(true)
   const [hiddenSeasons, setHiddenSeasons] = useState(new Set())
+
+  const noVesselsTracked = includedIds && includedIds.size === 0
 
   const toggleSeason = (year) => {
     setHiddenSeasons(prev => {
@@ -116,11 +118,17 @@ export default function SupplyIntelligence() {
   }
 
   useEffect(() => {
+    if (noVesselsTracked) {
+      setRawData(null)
+      setLoading(false)
+      return
+    }
     setLoading(true)
-    fetch(`/api/supply/season-chart?species=${species}&granularity=${granularity}`)
+    const vidParam = includedIds ? `&vessel_ids=${[...includedIds].join(',')}` : ''
+    fetch(`/api/supply/season-chart?species=${species}&granularity=${granularity}${vidParam}`)
       .then(r => r.json())
       .then(d => { setRawData(d); setLoading(false) })
-  }, [species, granularity])
+  }, [species, granularity, includedIds, noVesselsTracked])
 
   const seasons       = rawData?.seasons ?? []
   const currentSeason = seasons[seasons.length - 1]
@@ -187,7 +195,9 @@ export default function SupplyIntelligence() {
         </div>
       )}
 
-      {loading ? (
+      {noVesselsTracked ? (
+        <div className="si-empty-state">No vessels tracked — head to <strong>Vessel Tracker</strong> to select vessels.</div>
+      ) : loading ? (
         <div className="si-loading">Loading…</div>
       ) : (
         <div className="si-charts">

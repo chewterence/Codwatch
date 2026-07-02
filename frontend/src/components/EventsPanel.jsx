@@ -46,7 +46,16 @@ function Th({ label }) {
   )
 }
 
-function FishingTable({ rows }) {
+function VesselCell({ vesselId, vesselName, onSelectVesselId }) {
+  if (!onSelectVesselId) return <td className="cell-vessel">{vesselName}</td>
+  return (
+    <td className="cell-vessel cell-vessel--clickable" onClick={() => onSelectVesselId(vesselId)}>
+      {vesselName}
+    </td>
+  )
+}
+
+function FishingTable({ rows, onSelectVesselId }) {
   if (!rows.length) return <div className="empty-state">No fishing events found.</div>
   return (
     <table className="events-table">
@@ -63,7 +72,7 @@ function FishingTable({ rows }) {
       <tbody>
         {rows.map(e => (
           <tr key={e.event_id}>
-            <td className="cell-vessel">{e.vessel_name}</td>
+            <VesselCell vesselId={e.vessel_id} vesselName={e.vessel_name} onSelectVesselId={onSelectVesselId} />
             <td>{fmt(e.start_time)}</td>
             <td>{fmtHours(e.duration_hours)}</td>
             <td>{e.fao_areas?.join(', ') || '—'}</td>
@@ -76,7 +85,7 @@ function FishingTable({ rows }) {
   )
 }
 
-function EncountersTable({ rows }) {
+function EncountersTable({ rows, onSelectVesselId }) {
   if (!rows.length) return <div className="empty-state">No encounters found.</div>
   return (
     <table className="events-table">
@@ -93,7 +102,7 @@ function EncountersTable({ rows }) {
       <tbody>
         {rows.map(e => (
           <tr key={e.event_id}>
-            <td className="cell-vessel">{e.vessel_name}</td>
+            <VesselCell vesselId={e.vessel_id} vesselName={e.vessel_name} onSelectVesselId={onSelectVesselId} />
             <td className="cell-vessel">{e.encountered_vessel_name || '—'}</td>
             <td>{fmt(e.start_time)}</td>
             <td>{fmtHours(e.duration_hours)}</td>
@@ -106,7 +115,7 @@ function EncountersTable({ rows }) {
   )
 }
 
-function AisGapsTable({ rows }) {
+function AisGapsTable({ rows, onSelectVesselId }) {
   if (!rows.length) return <div className="empty-state">No AIS gaps found.</div>
   return (
     <table className="events-table">
@@ -122,7 +131,7 @@ function AisGapsTable({ rows }) {
       <tbody>
         {rows.map(e => (
           <tr key={e.event_id} className={e.gap_hours > 168 ? 'row--alert' : ''}>
-            <td className="cell-vessel">{e.vessel_name}</td>
+            <VesselCell vesselId={e.vessel_id} vesselName={e.vessel_name} onSelectVesselId={onSelectVesselId} />
             <td>{fmt(e.start_time)}</td>
             <td>
               <span className={e.gap_hours > 168 ? 'badge badge--warn' : ''}>
@@ -138,7 +147,7 @@ function AisGapsTable({ rows }) {
   )
 }
 
-function PortVisitsTable({ rows }) {
+function PortVisitsTable({ rows, onSelectVesselId }) {
   if (!rows.length) return <div className="empty-state">No port visits found.</div>
   return (
     <table className="events-table">
@@ -155,7 +164,7 @@ function PortVisitsTable({ rows }) {
       <tbody>
         {rows.map(e => (
           <tr key={e.event_id}>
-            <td className="cell-vessel">{e.vessel_name}</td>
+            <VesselCell vesselId={e.vessel_id} vesselName={e.vessel_name} onSelectVesselId={onSelectVesselId} />
             <td>{e.port_name || '—'}</td>
             <td>{e.port_flag || '—'}</td>
             <td>{fmt(e.start_time)}</td>
@@ -175,11 +184,21 @@ const TABS = [
   { id: 'ports',      label: 'Port Visits'     },
 ]
 
-export default function EventsPanel({ selectedVessel, activeTab, onTabChange }) {
+export default function EventsPanel({ selectedVessel, includedIds, activeTab, onTabChange, onSelectVesselId }) {
   const [data, setData] = useState({ fishing: [], encounters: [], ais_gaps: [], ports: [] })
 
+  const noVesselsTracked = !selectedVessel && includedIds && includedIds.size === 0
+
   useEffect(() => {
-    const vidParam = selectedVessel ? `&vessel_id=${selectedVessel.id}` : ''
+    if (noVesselsTracked) {
+      setData({ fishing: [], encounters: [], ais_gaps: [], ports: [] })
+      return
+    }
+
+    let vidParam = ''
+    if (selectedVessel) vidParam = `&vessel_id=${selectedVessel.id}`
+    else if (includedIds) vidParam = `&vessel_ids=${[...includedIds].join(',')}`
+
     Promise.all([
       fetch(`/api/fishing-events?limit=100${vidParam}`).then(r => r.json()),
       fetch(`/api/encounters?limit=100${vidParam}`).then(r => r.json()),
@@ -188,7 +207,7 @@ export default function EventsPanel({ selectedVessel, activeTab, onTabChange }) 
     ]).then(([fishing, encounters, ais_gaps, ports]) => {
       setData({ fishing, encounters, ais_gaps, ports })
     })
-  }, [selectedVessel])
+  }, [selectedVessel, includedIds, noVesselsTracked])
 
   return (
     <div className="events-panel">
@@ -213,10 +232,16 @@ export default function EventsPanel({ selectedVessel, activeTab, onTabChange }) 
         )}
       </div>
       <div className="events-body">
-        {activeTab === 'fishing'    && <FishingTable    rows={data.fishing}    />}
-        {activeTab === 'encounters' && <EncountersTable rows={data.encounters} />}
-        {activeTab === 'ais_gaps'   && <AisGapsTable    rows={data.ais_gaps}   />}
-        {activeTab === 'ports'      && <PortVisitsTable rows={data.ports}      />}
+        {noVesselsTracked ? (
+          <div className="empty-state">No vessels tracked — head to <strong>Vessel Tracker</strong> to select vessels.</div>
+        ) : (
+          <>
+            {activeTab === 'fishing'    && <FishingTable    rows={data.fishing}    onSelectVesselId={onSelectVesselId} />}
+            {activeTab === 'encounters' && <EncountersTable rows={data.encounters} onSelectVesselId={onSelectVesselId} />}
+            {activeTab === 'ais_gaps'   && <AisGapsTable    rows={data.ais_gaps}   onSelectVesselId={onSelectVesselId} />}
+            {activeTab === 'ports'      && <PortVisitsTable rows={data.ports}      onSelectVesselId={onSelectVesselId} />}
+          </>
+        )}
       </div>
     </div>
   )
