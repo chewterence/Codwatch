@@ -37,6 +37,16 @@
   border-color: #374151;
 }
 
+.detail-section-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #374151;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
 .detail-identity {
   display: flex;
   align-items: center;

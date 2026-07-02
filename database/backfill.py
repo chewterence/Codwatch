@@ -123,8 +123,8 @@ def seed_vessels(conn) -> None:
                     vessel_name, flag, ccamlr_member,
                     gfw_vessel_id, gfw_ssvid, gfw_imo, gfw_callsign, gfw_flag,
                     gfw_geartypes, gfw_ais_from, gfw_ais_to, gfw_match_confidence,
-                    eleginoides_authorized, mawsoni_authorized
-                ) VALUES (%s,%s,%s, %s,%s,%s,%s,%s, %s,%s,%s,%s, %s,%s)
+                    eleginoides_authorized, mawsoni_authorized, tracked
+                ) VALUES (%s,%s,%s, %s,%s,%s,%s,%s, %s,%s,%s,%s, %s,%s,%s)
                 ON CONFLICT (vessel_name) DO UPDATE SET
                     gfw_vessel_id        = EXCLUDED.gfw_vessel_id,
                     gfw_ssvid            = EXCLUDED.gfw_ssvid,
@@ -147,6 +147,7 @@ def seed_vessels(conn) -> None:
                 ais_from, ais_to, v.get("gfw_match_confidence"),
                 v.get("eleginoides_authorized", False),
                 v.get("mawsoni_authorized", False),
+                v.get("tracked", True),
             ))
 
             row = cur.fetchone()

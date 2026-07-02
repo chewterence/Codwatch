@@ -3,6 +3,7 @@ import VesselSidebar from './components/VesselSidebar'
 import FleetMap from './components/FleetMap'
 import EventsPanel from './components/EventsPanel'
 import VesselDetail from './components/VesselDetail'
+import SupplyIntelligence from './components/SupplyIntelligence'
 import './App.css'
 
 function StatBadge({ label, value, highlight }) {
@@ -20,11 +21,29 @@ export default function App() {
   const [selectedVessel, setSelectedVessel] = useState(null)
   const [detailMode, setDetailMode]         = useState(false)
   const [activeTab, setActiveTab]           = useState('fishing')
+  const [activeView, setActiveView]         = useState('fleet')
+  const [includedIds, setIncludedIds]       = useState(new Set())
 
   useEffect(() => {
     fetch('/api/summary').then(r => r.json()).then(setSummary)
-    fetch('/api/vessels').then(r => r.json()).then(setVessels)
+    fetch('/api/vessels').then(r => r.json()).then(data => {
+      setVessels(data)
+      setIncludedIds(new Set(data.filter(v => v.gfw_vessel_id).map(v => v.id)))
+    })
   }, [])
+
+  const handleToggleInclude = (vesselId) => {
+    setIncludedIds(prev => {
+      const next = new Set(prev)
+      if (next.has(vesselId)) next.delete(vesselId)
+      else next.add(vesselId)
+      return next
+    })
+  }
+
+  const handleSetIncluded = (vesselIds) => {
+    setIncludedIds(new Set(vesselIds))
+  }
 
   const handleVesselSelect = (vessel) => {
     setSelectedVessel(vessel)
@@ -36,7 +55,15 @@ export default function App() {
     setDetailMode(false)
   }
 
-  const showDetail = detailMode && selectedVessel
+  const handleViewChange = (view) => {
+    setActiveView(view)
+    if (view !== 'fleet') {
+      setSelectedVessel(null)
+      setDetailMode(false)
+    }
+  }
+
+  const showDetail = detailMode && selectedVessel && activeView === 'fleet'
 
   return (
     <div className="app">
@@ -45,6 +72,22 @@ export default function App() {
           <span className="brand-dot" />
           CODWATCH
         </div>
+
+        <nav className="topbar-nav">
+          <button
+            className={`nav-tab ${activeView === 'fleet' ? 'nav-tab--active' : ''}`}
+            onClick={() => handleViewChange('fleet')}
+          >
+            Fleet Intelligence
+          </button>
+          <button
+            className={`nav-tab ${activeView === 'supply' ? 'nav-tab--active' : ''}`}
+            onClick={() => handleViewChange('supply')}
+          >
+            Supply Intelligence
+          </button>
+        </nav>
+
         <div className="topbar-stats">
           {summary ? (
             <>
@@ -64,17 +107,24 @@ export default function App() {
       </header>
 
       <div className="workspace">
-        <VesselSidebar
-          vessels={vessels}
-          selected={selectedVessel}
-          onSelect={handleVesselSelect}
-        />
+        {activeView === 'fleet' && (
+          <VesselSidebar
+            vessels={vessels}
+            selected={selectedVessel}
+            onSelect={handleVesselSelect}
+            includedIds={includedIds}
+            onToggleInclude={handleToggleInclude}
+            onSetIncluded={handleSetIncluded}
+          />
+        )}
         <div className="main-panel">
-          {showDetail ? (
+          {activeView === 'supply' ? (
+            <SupplyIntelligence />
+          ) : showDetail ? (
             <VesselDetail vessel={selectedVessel} onBack={handleBack} />
           ) : (
             <>
-              <FleetMap selectedVessel={selectedVessel} />
+              <FleetMap selectedVessel={selectedVessel} includedIds={includedIds} />
               <EventsPanel
                 selectedVessel={selectedVessel}
                 activeTab={activeTab}

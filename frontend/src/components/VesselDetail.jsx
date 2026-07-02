@@ -1,23 +1,7 @@
 import { useState, useEffect } from 'react'
 import VoyageTimeline from './VoyageTimeline'
+import { flagFor } from '../flags'
 import './VesselDetail.css'
-
-const FLAG_EMOJI = {
-  Australia:            '🇦🇺',
-  Chile:                '🇨🇱',
-  China:                '🇨🇳',
-  France:               '🇫🇷',
-  Japan:                '🇯🇵',
-  'Korea, Republic of': '🇰🇷',
-  Namibia:              '🇳🇦',
-  'New Zealand':        '🇳🇿',
-  'Russian Federation': '🇷🇺',
-  'South Africa':       '🇿🇦',
-  Spain:                '🇪🇸',
-  Ukraine:              '🇺🇦',
-  'United Kingdom':     '🇬🇧',
-  Uruguay:              '🇺🇾',
-}
 
 // ISO3 → { emoji, name } for all port_flag values that appear in the database
 const PORT_FLAG = {
@@ -138,12 +122,13 @@ export default function VesselDetail({ vessel, onBack }) {
       .then(d => { setData(d); setLoading(false) })
   }, [vessel?.id, months])
 
-  const flag = FLAG_EMOJI[vessel.flag] || '🏳️'
+  const flag = flagFor(vessel.flag)
 
   return (
     <div className="vessel-detail">
       <div className="detail-header">
         <button className="detail-back" onClick={onBack}>← Fleet</button>
+        <span className="detail-section-label">Vessel Details</span>
 
         <div className="detail-identity">
           <span className="detail-flag">{flag}</span>

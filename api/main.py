@@ -9,6 +9,7 @@ Run:
 
 import datetime
 import os
+from collections import defaultdict
 
 import psycopg2
 import psycopg2.extras
@@ -313,4 +314,82 @@ def get_vessel_timeline(
         "fishing_events": fishing,
         "port_visits":    ports,
         "ais_gaps":       gaps,
+    }
+
+
+# ── Supply Intelligence ───────────────────────────────────────────────────────
+
+@app.get("/api/supply/season-chart")
+def get_season_chart(
+    species:     str = Query("all"),      # all | eleginoides | mawsoni
+    granularity: str = Query("monthly"),  # monthly | weekly
+):
+    if species == "mawsoni":
+        species_filter = "AND '88' = ANY(fe.fao_areas)"
+    elif species == "eleginoides":
+        species_filter = "AND NOT ('88' = ANY(fe.fao_areas))"
+    else:
+        species_filter = ""
+
+    if granularity == "weekly":
+        bucket_sql = """
+            (start_time::date
+             - TO_DATE(season_year::text || '-12-01', 'YYYY-MM-DD')) / 7 + 1
+        """
+        max_bucket = 52
+    else:
+        # Season-relative month: Dec=1, Jan=2, …, Nov=12
+        bucket_sql = """
+            CASE WHEN EXTRACT(MONTH FROM start_time) >= 12
+                THEN EXTRACT(MONTH FROM start_time)::int - 11
+                ELSE EXTRACT(MONTH FROM start_time)::int + 1
+            END
+        """
+        max_bucket = 12
+
+    rows = query(f"""
+        WITH base AS (
+            SELECT
+                CASE WHEN EXTRACT(MONTH FROM fe.start_time) >= 12
+                    THEN EXTRACT(YEAR FROM fe.start_time)::int
+                    ELSE EXTRACT(YEAR FROM fe.start_time)::int - 1
+                END AS season_year,
+                fe.start_time,
+                fe.duration_hours
+            FROM fishing_events fe
+            WHERE fe.duration_hours IS NOT NULL
+              AND fe.duration_hours > 0
+              {species_filter}
+        )
+        SELECT
+            season_year,
+            {bucket_sql} AS bucket,
+            SUM(duration_hours) AS hours
+        FROM base
+        WHERE season_year >= 2022
+        GROUP BY season_year, bucket
+        HAVING {bucket_sql} BETWEEN 1 AND {max_bucket}
+        ORDER BY season_year, bucket
+    """)
+
+    season_years = sorted(set(r["season_year"] for r in rows))
+
+    # Raw bucket sums per season (cumulative is computed on the frontend)
+    season_buckets = defaultdict(dict)
+    for r in rows:
+        season_buckets[r["season_year"]][r["bucket"]] = r["hours"]
+
+    # Pivot to Recharts format: [{bucket: 1, "2022": 1234, ...}, ...]
+    data = []
+    for b in range(1, max_bucket + 1):
+        row = {"bucket": b}
+        for year in season_years:
+            val = season_buckets[year].get(b, 0)
+            if val > 0:
+                row[str(year)] = round(val, 1)
+        data.append(row)
+
+    return {
+        "seasons": [str(y) for y in season_years],
+        "data":    data,
     }

@@ -198,7 +198,7 @@
       "vessel": "Le Saint Andre",
       "flag": "France",
       "ccamlr_member": "France",
-      "gfw_vessel_id": null,
+      "gfw_vessel_id": "a99fda4e1-1bf3-05bd-dff9-f4eb51f908f9",
       "eleginoides_authorized": true,
       "mawsoni_authorized": true,
       "authorizations": [
@@ -214,14 +214,16 @@
           ]
         }
       ],
-      "gfw_ssvid": null,
-      "gfw_imo": null,
-      "gfw_callsign": null,
-      "gfw_flag": null,
-      "gfw_geartypes": [],
-      "gfw_ais_from": null,
-      "gfw_ais_to": null,
-      "gfw_match_confidence": "not_found",
+      "gfw_ssvid": "618000500",
+      "gfw_imo": "9511181",
+      "gfw_callsign": "FNTD",
+      "gfw_flag": "FRA",
+      "gfw_geartypes": [
+        "SET_LONGLINES"
+      ],
+      "gfw_ais_from": "2012-01-01T00:10:07Z",
+      "gfw_ais_to": "2026-06-08T03:39:54Z",
+      "gfw_match_confidence": "exact",
       "gfw_candidates": [
         {
           "gfw_vessel_id": "26f85e283-37d9-0cd4-aa2d-e86f93973deb",
@@ -512,7 +514,7 @@
       "vessel": "Greenstar",
       "flag": "Korea, Republic of",
       "ccamlr_member": "Korea, Republic of",
-      "gfw_vessel_id": null,
+      "gfw_vessel_id": "a83d5985f-f722-4d12-7621-ad002d2a53fe",
       "eleginoides_authorized": true,
       "mawsoni_authorized": true,
       "authorizations": [
@@ -528,20 +530,24 @@
           ]
         }
       ],
-      "gfw_ssvid": null,
-      "gfw_imo": null,
-      "gfw_callsign": null,
-      "gfw_flag": null,
-      "gfw_geartypes": [],
-      "gfw_ais_from": null,
-      "gfw_ais_to": null,
-      "gfw_match_confidence": "not_found"
+      "gfw_ssvid": "440347000",
+      "gfw_imo": "9125334",
+      "gfw_callsign": "6KCE9",
+      "gfw_flag": "KOR",
+      "gfw_geartypes": [
+        "SET_LONGLINES",
+        "NA",
+        "DRIFTING_LONGLINES"
+      ],
+      "gfw_ais_from": "2015-04-17T03:39:09Z",
+      "gfw_ais_to": "2026-06-30T23:58:36Z",
+      "gfw_match_confidence": "exact"
     },
     {
       "vessel": "Kingstar",
       "flag": "Korea, Republic of",
       "ccamlr_member": "Korea, Republic of",
-      "gfw_vessel_id": null,
+      "gfw_vessel_id": "e908103e6-612e-2de0-8d4d-6a532071be24",
       "eleginoides_authorized": true,
       "mawsoni_authorized": true,
       "authorizations": [
@@ -568,14 +574,16 @@
           ]
         }
       ],
-      "gfw_ssvid": null,
-      "gfw_imo": null,
-      "gfw_callsign": null,
-      "gfw_flag": null,
-      "gfw_geartypes": [],
-      "gfw_ais_from": null,
-      "gfw_ais_to": null,
-      "gfw_match_confidence": "not_found"
+      "gfw_ssvid": "440203000",
+      "gfw_imo": "8916009",
+      "gfw_callsign": "6KCD4",
+      "gfw_flag": "KOR",
+      "gfw_geartypes": [
+        "SET_LONGLINES"
+      ],
+      "gfw_ais_from": "2014-05-16T03:01:41Z",
+      "gfw_ais_to": "2026-06-30T23:48:20Z",
+      "gfw_match_confidence": "exact"
     },
     {
       "vessel": "Ocean Park",
@@ -708,7 +716,7 @@
       "vessel": "Seven Park",
       "flag": "Korea, Republic of",
       "ccamlr_member": "Korea, Republic of",
-      "gfw_vessel_id": null,
+      "gfw_vessel_id": "33ea63921-14fc-037f-71e2-1cb8d2038592",
       "eleginoides_authorized": true,
       "mawsoni_authorized": true,
       "authorizations": [
@@ -725,14 +733,16 @@
           ]
         }
       ],
-      "gfw_ssvid": null,
-      "gfw_imo": null,
-      "gfw_callsign": null,
-      "gfw_flag": null,
-      "gfw_geartypes": [],
-      "gfw_ais_from": null,
-      "gfw_ais_to": null,
-      "gfw_match_confidence": "not_found",
+      "gfw_ssvid": "440854000",
+      "gfw_imo": "8608822",
+      "gfw_callsign": "DTBT2",
+      "gfw_flag": "KOR",
+      "gfw_geartypes": [
+        "SET_LONGLINES"
+      ],
+      "gfw_ais_from": "2012-01-11T23:36:28Z",
+      "gfw_ais_to": "2026-06-30T23:59:59Z",
+      "gfw_match_confidence": "exact",
       "gfw_candidates": [
         {
           "gfw_vessel_id": "024aba5bd-d1e9-10eb-4f5f-876716d6ef13",
@@ -793,7 +803,7 @@
       "vessel": "Sunstar",
       "flag": "Korea, Republic of",
       "ccamlr_member": "Korea, Republic of",
-      "gfw_vessel_id": null,
+      "gfw_vessel_id": "027260d4d-d8aa-eb47-0825-c8a560b022c8",
       "eleginoides_authorized": true,
       "mawsoni_authorized": true,
       "authorizations": [
@@ -822,14 +832,16 @@
           ]
         }
       ],
-      "gfw_ssvid": null,
-      "gfw_imo": null,
-      "gfw_callsign": null,
-      "gfw_flag": null,
-      "gfw_geartypes": [],
-      "gfw_ais_from": null,
-      "gfw_ais_to": null,
-      "gfw_match_confidence": "not_found"
+      "gfw_ssvid": "441864000",
+      "gfw_imo": "8978071",
+      "gfw_callsign": "6KCB",
+      "gfw_flag": "KOR",
+      "gfw_geartypes": [
+        "SET_LONGLINES"
+      ],
+      "gfw_ais_from": "2012-08-21T23:04:00Z",
+      "gfw_ais_to": "2026-06-30T23:58:42Z",
+      "gfw_match_confidence": "exact"
     },
     {
       "vessel": "Helena Ndume",
@@ -1360,6 +1372,159 @@
       "gfw_ais_from": "2015-10-02T01:32:13Z",
       "gfw_ais_to": "2026-06-25T23:59:54Z",
       "gfw_match_confidence": "exact"
+    },
+    {
+      "vessel": "PUERTO BALLENA",
+      "flag": "Chile",
+      "ccamlr_member": "Chile",
+      "gfw_vessel_id": "428d3868d-d961-c8ed-2677-fd10e8e0a2d5",
+      "gfw_ssvid": "725000357",
+      "gfw_imo": "8617495",
+      "gfw_callsign": "CB2043",
+      "gfw_flag": "CHL",
+      "gfw_geartypes": [
+        "SET_LONGLINES"
+      ],
+      "gfw_ais_from": "2012-01-01T04:41:40Z",
+      "gfw_ais_to": "2026-06-30T23:59:22Z",
+      "gfw_match_confidence": "exact",
+      "eleginoides_authorized": true,
+      "mawsoni_authorized": false,
+      "authorizations": []
+    },
+    {
+      "vessel": "PUERTO TORO",
+      "flag": "Chile",
+      "ccamlr_member": "Chile",
+      "gfw_vessel_id": "033998426-6dd0-d8d2-aedf-0756991c6027",
+      "gfw_ssvid": "725000896",
+      "gfw_imo": "9348869",
+      "gfw_callsign": "CA3665",
+      "gfw_flag": "CHL",
+      "gfw_geartypes": [
+        "SET_LONGLINES"
+      ],
+      "gfw_ais_from": "2012-01-01T07:47:13Z",
+      "gfw_ais_to": "2026-06-30T23:58:15Z",
+      "gfw_match_confidence": "exact",
+      "eleginoides_authorized": true,
+      "mawsoni_authorized": false,
+      "authorizations": []
+    },
+    {
+      "vessel": "MASCAREIGNES III",
+      "flag": "France",
+      "ccamlr_member": "France",
+      "gfw_vessel_id": "12f6cbdd8-83d8-e466-e4c3-3e0b57e68871",
+      "gfw_ssvid": "635212000",
+      "gfw_imo": "9245407",
+      "gfw_callsign": "FOVB",
+      "gfw_flag": "FRA",
+      "gfw_geartypes": [
+        "SET_LONGLINES"
+      ],
+      "gfw_ais_from": "2012-01-01T00:08:58Z",
+      "gfw_ais_to": "2026-06-30T23:59:46Z",
+      "gfw_match_confidence": "exact",
+      "eleginoides_authorized": true,
+      "mawsoni_authorized": false,
+      "authorizations": []
+    },
+    {
+      "vessel": "CAP KERSAINT",
+      "flag": "France",
+      "ccamlr_member": "France",
+      "gfw_vessel_id": "ac751a3d4-45a6-16b8-f37a-3f9d62618fb0",
+      "gfw_ssvid": "635019200",
+      "gfw_imo": "9747601",
+      "gfw_callsign": "FISH",
+      "gfw_flag": "FRA",
+      "gfw_geartypes": [
+        "SET_LONGLINES"
+      ],
+      "gfw_ais_from": "2015-10-21T04:28:04Z",
+      "gfw_ais_to": "2026-06-30T23:59:29Z",
+      "gfw_match_confidence": "exact",
+      "eleginoides_authorized": true,
+      "mawsoni_authorized": false,
+      "authorizations": []
+    },
+    {
+      "vessel": "ILE BOURBON",
+      "flag": "France",
+      "ccamlr_member": "France",
+      "gfw_vessel_id": "f92ac1ad0-020f-5446-6e4a-6c1b3f773dd1",
+      "gfw_ssvid": "635000300",
+      "gfw_imo": "9245421",
+      "gfw_callsign": "FOSP",
+      "gfw_flag": "FRA",
+      "gfw_geartypes": [
+        "SET_LONGLINES"
+      ],
+      "gfw_ais_from": "2012-01-04T03:56:50Z",
+      "gfw_ais_to": "2026-06-26T21:36:11Z",
+      "gfw_match_confidence": "exact",
+      "eleginoides_authorized": true,
+      "mawsoni_authorized": false,
+      "authorizations": []
+    },
+    {
+      "vessel": "GLOBALPESCA I",
+      "flag": "Chile",
+      "ccamlr_member": "Chile",
+      "gfw_vessel_id": "79f1bf2b5-5e18-b97a-1aa4-ab9f97f9e10a",
+      "gfw_ssvid": "725002350",
+      "gfw_imo": "9262376",
+      "gfw_callsign": "CB7961",
+      "gfw_flag": "CHL",
+      "gfw_geartypes": [
+        "SET_LONGLINES"
+      ],
+      "gfw_ais_from": "2012-01-12T03:52:11Z",
+      "gfw_ais_to": "2026-06-30T23:59:50Z",
+      "gfw_match_confidence": "exact",
+      "eleginoides_authorized": true,
+      "mawsoni_authorized": false,
+      "authorizations": []
+    },
+    {
+      "vessel": "ARGOSGEORGIA",
+      "flag": "SHN",
+      "ccamlr_member": "SHN",
+      "gfw_vessel_id": "72ea2e17b-bd73-95a7-a477-38394d0e2338",
+      "gfw_ssvid": "665111129",
+      "gfw_imo": "9812690",
+      "gfw_callsign": "ZHHJ",
+      "gfw_flag": "SHN",
+      "gfw_geartypes": [
+        "SET_LONGLINES"
+      ],
+      "gfw_ais_from": "2018-01-21T12:21:29Z",
+      "gfw_ais_to": "2024-07-22T20:47:19Z",
+      "gfw_match_confidence": "exact",
+      "eleginoides_authorized": true,
+      "mawsoni_authorized": false,
+      "authorizations": []
+    },
+    {
+      "vessel": "OCEAN AZUL",
+      "flag": "Uruguay",
+      "ccamlr_member": "Uruguay",
+      "gfw_vessel_id": "861217132-217b-21f8-2244-0a08f18a5d60",
+      "gfw_ssvid": "770576483",
+      "gfw_imo": "8704925",
+      "gfw_callsign": "CXOH",
+      "gfw_flag": "URY",
+      "gfw_geartypes": [
+        "SET_LONGLINES",
+        "TRAWLERS"
+      ],
+      "gfw_ais_from": "2020-10-20T07:48:06Z",
+      "gfw_ais_to": "2026-04-09T16:51:29Z",
+      "gfw_match_confidence": "exact",
+      "eleginoides_authorized": true,
+      "mawsoni_authorized": false,
+      "authorizations": []
     }
   ]
 }

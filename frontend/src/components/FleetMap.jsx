@@ -33,8 +33,8 @@ function MapFlyTo({ events, selectedVessel }) {
   return null
 }
 
-export default function FleetMap({ selectedVessel }) {
-  const [events, setEvents] = useState([])
+export default function FleetMap({ selectedVessel, includedIds }) {
+  const [allEvents, setAllEvents] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -45,9 +45,14 @@ export default function FleetMap({ selectedVessel }) {
 
     fetch(`/api/fishing-events?${params}`)
       .then(r => r.json())
-      .then(data => { setEvents(data); setLoading(false) })
+      .then(data => { setAllEvents(data); setLoading(false) })
       .catch(() => setLoading(false))
   }, [selectedVessel])
+
+  // When viewing the whole fleet, only show vessels the user has included
+  const events = selectedVessel || !includedIds
+    ? allEvents
+    : allEvents.filter(e => includedIds.has(e.vessel_id))
 
   return (
     <div className="map-wrapper">
