@@ -79,8 +79,42 @@
 .topbar-stats {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 8px;
   flex: 1;
+}
+
+.stats-toggle {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: 1px solid transparent;
+  color: #475569;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 5px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-left: auto;
+  transition: color 0.1s, border-color 0.1s;
+}
+
+.stats-toggle:hover {
+  color: #94a3b8;
+  border-color: #1e2240;
+}
+
+.stats-toggle-icon {
+  display: inline-block;
+  font-size: 9px;
+  transition: transform 0.15s ease;
+}
+
+.stats-toggle-icon--expanded {
+  transform: rotate(90deg);
 }
 
 .stat-badge {
@@ -163,5 +197,12 @@
   flex: 1;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+}
+
+.fleet-layout {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
   overflow: hidden;
 }

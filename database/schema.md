@@ -9,7 +9,7 @@
 
 ## vessels
 
-One row per tracked vessel. **40 total; 40 matched to GFW** (5 previously unmatched now fixed).
+One row per tracked vessel. **45 total; 45 matched to GFW.** 2 have `tracked = FALSE` (ARGENOVA XXI excluded by design; ARGOSGEORGIA sank July 2024).
 
 | Column | Type | NULL count | Notes |
 |---|---|---|---|
@@ -31,6 +31,29 @@ One row per tracked vessel. **40 total; 40 matched to GFW** (5 previously unmatc
 | `tracked` | BOOLEAN | 0 | **Include in supply intelligence stats.** Default `TRUE`. Set `FALSE` to exclude a vessel without deleting it. Never overwritten by backfill re-seed — manual changes persist. |
 | `created_at` | TIMESTAMPTZ | 0 | |
 | `updated_at` | TIMESTAMPTZ | 0 | |
+
+---
+
+## vessel_aliases
+
+Prior name/flag identities for a vessel that renamed and/or reflagged mid-life while remaining the same physical hull (GFW links these as separate vessel identity records sharing one IMO). One row per prior identity segment; the "current" identity lives on `vessels` itself. **0 rows currently** — no tracked vessel has a known alias yet.
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | SERIAL PK | |
+| `vessel_id` | INTEGER FK → vessels (ON DELETE CASCADE) | |
+| `alias_name` | TEXT NOT NULL | Prior vessel name |
+| `gfw_vessel_id` | TEXT | GFW vessel ID for this identity segment (differs from `vessels.gfw_vessel_id`) |
+| `flag` | TEXT | ISO3 flag during this period |
+| `ssvid` | TEXT | MMSI during this period |
+| `active_from` | DATE | |
+| `active_to` | DATE | NULL if this was the identity immediately before the current one |
+| `note` | TEXT | |
+| `created_at` | TIMESTAMPTZ | |
+
+**Index:** `(vessel_id)`
+
+`GET /api/vessels` returns each vessel's aliases as a JSON array (`aliases: [{name, flag, active_from, active_to}, ...]`), consumed by the "Aliases" column in the Vessel Tracker frontend.
 
 ---
 
@@ -187,6 +210,7 @@ Tracks what has been fetched from GFW so the backfill script can resume safely w
 ## Entity Relationships
 
 ```
+vessels (1) ──< vessel_aliases (many)
 vessels (1) ──< vessel_authorizations (many)
 vessels (1) ──< fishing_events (many)
 vessels (1) ──< port_visits (many)
@@ -201,10 +225,10 @@ vessels (1) ──< backfill_log (many)
 
 | Table | Total Rows | Issues |
 |---|---|---|
-| vessels | 40 | All 40 matched to GFW. 8 new vessels added (5 Chilean/French CCAMLR-authorized + 3 others). `tracked=TRUE` for all by default. |
+| vessels | 45 | All 45 matched to GFW. `tracked=FALSE` for ARGENOVA XXI (excluded by design) and ARGOSGEORGIA (sank July 2024). |
 | vessel_authorizations | 45 | None |
-| fishing_events | 40,185 | `eez_areas` NULL 67%, `high_seas` NULL 33%, `rfmo_areas` NULL 0.2% |
-| port_visits | 261 | `end_time`, `duration_hours`, `lat`, `lon` all NULL (structural — not fixable from current source) |
-| encounters | 440 | `rfmo_areas` NULL for 1 record |
-| ais_gaps | 147 | `lat_off`, `lon_off`, `lat_on`, `lon_on` all NULL — fixable by parsing `raw` JSONB |
-| backfill_log | 540 | `error_msg` NULL for all (expected — all fetches succeeded) |
+| fishing_events | 84,346 | `eez_areas` NULL ~67%, `high_seas` NULL ~33%, `rfmo_areas` NULL ~0.2% |
+| port_visits | 595 | `end_time`, `duration_hours`, `lat`, `lon` all NULL (structural — not fixable from current source) |
+| encounters | 615 | `rfmo_areas` NULL for ~1 record |
+| ais_gaps | 285 | `lat_off`, `lon_off`, `lat_on`, `lon_on` all NULL — fixable by parsing `raw` JSONB |
+| backfill_log | 1,008 | `error_msg` NULL for all (expected — all fetches succeeded) |

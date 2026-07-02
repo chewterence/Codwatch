@@ -6,6 +6,7 @@ export const FLAG_EMOJI = {
   Chile:                '🇨🇱',
   China:                '🇨🇳',
   France:               '🇫🇷',
+  Iceland:               '🇮🇸',
   Japan:                '🇯🇵',
   'Korea, Republic of': '🇰🇷',
   Namibia:              '🇳🇦',

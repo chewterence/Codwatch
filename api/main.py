@@ -89,7 +89,8 @@ def get_vessels():
             COALESCE(fe.cnt, 0)      AS fishing_event_count,
             fe.last_date             AS last_fishing_date,
             COALESCE(e.cnt, 0)       AS encounter_count,
-            COALESCE(ag.cnt, 0)      AS ais_gap_count
+            COALESCE(ag.cnt, 0)      AS ais_gap_count,
+            COALESCE(al.aliases, '[]'::json) AS aliases
         FROM vessels v
         LEFT JOIN (
             SELECT vessel_id, COUNT(*) AS cnt, MAX(start_time)::date AS last_date
@@ -101,6 +102,15 @@ def get_vessels():
         LEFT JOIN (
             SELECT vessel_id, COUNT(*) AS cnt FROM ais_gaps GROUP BY vessel_id
         ) ag ON ag.vessel_id = v.id
+        LEFT JOIN (
+            SELECT vessel_id, json_agg(json_build_object(
+                'name', alias_name,
+                'flag', flag,
+                'active_from', active_from,
+                'active_to', active_to
+            ) ORDER BY active_from) AS aliases
+            FROM vessel_aliases GROUP BY vessel_id
+        ) al ON al.vessel_id = v.id
         ORDER BY fishing_event_count DESC, v.vessel_name
     """)
 

@@ -7,7 +7,7 @@
       "Dissostichus eleginoides",
       "Dissostichus mawsoni"
     ],
-    "total_vessels": 32,
+    "total_vessels": 42,
     "notes": [
       "CCAMLR publishes only currently active authorizations. Historical seasons before 2025 are not available from this source, except for multi-year licenses (e.g. Shinsei Maru No. 8, Sunstar).",
       "Dissostichus spp. authorizations are expanded to both Dissostichus eleginoides AND Dissostichus mawsoni.",
@@ -1504,7 +1504,8 @@
       "gfw_match_confidence": "exact",
       "eleginoides_authorized": true,
       "mawsoni_authorized": false,
-      "authorizations": []
+      "authorizations": [],
+      "tracked": false
     },
     {
       "vessel": "OCEAN AZUL",
@@ -1525,6 +1526,46 @@
       "eleginoides_authorized": true,
       "mawsoni_authorized": false,
       "authorizations": []
+    },
+    {
+      "vessel": "ANTARCTIC ENDEAVOUR",
+      "flag": "Chile",
+      "ccamlr_member": "Chile",
+      "eleginoides_authorized": true,
+      "mawsoni_authorized": false,
+      "authorizations": [],
+      "gfw_vessel_id": "810d76696-6067-e418-cca8-a939d8c5666a",
+      "gfw_ssvid": "725001619",
+      "gfw_imo": "8717453",
+      "gfw_callsign": "CA5744",
+      "gfw_flag": "CHL",
+      "gfw_geartypes": [
+        "TRAWLERS"
+      ],
+      "gfw_ais_from": "2017-06-06T21:49:10Z",
+      "gfw_ais_to": "2026-06-30T23:52:11Z",
+      "gfw_match_confidence": "exact",
+      "tracked": true
+    },
+    {
+      "vessel": "SEJONG",
+      "flag": "Korea, Republic of",
+      "ccamlr_member": "Korea, Republic of",
+      "eleginoides_authorized": true,
+      "mawsoni_authorized": true,
+      "authorizations": [],
+      "gfw_vessel_id": "52ff5aa31-1a61-1d7a-2859-578847262c2b",
+      "gfw_ssvid": "441699000",
+      "gfw_imo": "8607385",
+      "gfw_callsign": "DTBX8",
+      "gfw_flag": "KOR",
+      "gfw_geartypes": [
+        "TRAWLERS"
+      ],
+      "gfw_ais_from": "2012-01-03T16:43:10Z",
+      "gfw_ais_to": "2026-06-30T23:51:30Z",
+      "gfw_match_confidence": "exact",
+      "tracked": true
     }
   ]
 }

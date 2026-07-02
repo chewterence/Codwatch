@@ -55,6 +55,24 @@ CREATE TABLE IF NOT EXISTS vessel_authorizations (
 CREATE INDEX IF NOT EXISTS idx_vessel_auth_vessel ON vessel_authorizations(vessel_id);
 CREATE INDEX IF NOT EXISTS idx_vessel_auth_period ON vessel_authorizations(period_from, period_to);
 
+-- A vessel can rename and/or reflag mid-life while remaining the same physical
+-- hull (GFW links these as separate vessel identity records sharing one IMO).
+-- One row per prior identity segment; the "current" identity lives on vessels itself.
+CREATE TABLE IF NOT EXISTS vessel_aliases (
+    id              SERIAL PRIMARY KEY,
+    vessel_id       INTEGER NOT NULL REFERENCES vessels(id) ON DELETE CASCADE,
+    alias_name      TEXT NOT NULL,
+    gfw_vessel_id   TEXT,             -- GFW vessel ID for this identity segment
+    flag            TEXT,             -- ISO3 flag during this period
+    ssvid           TEXT,             -- MMSI during this period
+    active_from     DATE,
+    active_to       DATE,
+    note            TEXT,
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_vessel_aliases_vessel ON vessel_aliases(vessel_id);
+
 -- ============================================================
 -- GFW EVENT TABLES
 -- ============================================================

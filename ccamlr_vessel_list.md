@@ -77,13 +77,14 @@ Vessels are grouped by flag state. Each vessel may have multiple authorization r
 
 ---
 
-### Korea, Republic of — 10 toothfish vessels
+### Korea, Republic of — 11 toothfish vessels
 
-> Sae In Leader and Sejong are krill-only — excluded. All toothfish vessels below are authorized for Dissostichus spp. (which includes Dissostichus eleginoides).
+> Sae In Leader is krill-only — excluded. All toothfish vessels below are authorized for Dissostichus spp. (which includes Dissostichus eleginoides). **Sejong was previously listed as krill-only but is confirmed toothfish-authorized on the current CCAMLR list (verified July 2026).**
 
 | Vessel | Authorized Areas | Dissostichus eleginoides authorization | Period |
 |---|---|---|---|
 | Greenstar | 48.6 ✅ | Yes — 48.6 is a D. eleginoides zone | Dec 2025–Nov 2026 |
+| Sejong | 48.6 ✅, 88.x | Yes — Dissostichus spp. | Verify current period |
 | Blue Ocean | 88.1–88.2 ⚠️ | Listed as Dissostichus spp. | Dec 2025–Aug 2026, Jul 2026–Jul 2030 |
 | Kingstar | 88.2, 88.3 ⚠️ | Listed as Dissostichus spp. | Dec 2025–Nov 2026 |
 | Ocean Park | 88.2 ⚠️ | Listed as Dissostichus spp. | Dec 2025–Aug 2026 |
@@ -123,6 +124,16 @@ Vessels are grouped by flag state. Each vessel may have multiple authorization r
 
 ---
 
+### Chile — 1 vessel
+
+> **Antarctic Endeavour** was previously misclassified as krill-only. Confirmed toothfish-authorized on CCAMLR list (July 2026). Added to Codwatch DB.
+
+| Vessel | Authorized Areas | Dissostichus eleginoides authorization | Period |
+|---|---|---|---|
+| Antarctic Endeavour | 48.x / 58.x ✅ | Yes — confirmed CCAMLR toothfish authorization | Verify current period |
+
+---
+
 ### South Africa / Chile — 1 vessel
 
 | Vessel | Flag | Authorized Areas | Dissostichus eleginoides authorization | Period |
@@ -152,6 +163,8 @@ Vessels are grouped by flag state. Each vessel may have multiple authorization r
 
 ### United Kingdom — 2 vessels
 
+> **ARGOSGEORGIA (SHN flag) sank 22 July 2024**, ~190 nm east of the Falklands. 13 crew died. It has been removed from the CCAMLR authorized vessel list. It remains in the Codwatch DB with `tracked = FALSE`.
+
 | Vessel | Authorized Areas | Dissostichus eleginoides authorization | Period |
 |---|---|---|---|
 | Argos Helena | 48.3 ✅, 48.4 ✅, 88.1–88.2 | Yes — explicit for 48.3, Dissostichus spp. for 48.4, D. mawsoni for 88.x | Dec 2025–Nov 2026 |
@@ -169,21 +182,24 @@ Vessels are grouped by flag state. Each vessel may have multiple authorization r
 
 ## Fleet Summary
 
+> Updated July 2026: +2 vessels confirmed (Antarctic Endeavour, Sejong); ARGOSGEORGIA removed (sank July 2024).
+
 | Flag | Vessels | Confirmed 48.x/58.x (D. eleginoides) | 88.x only |
 |---|---|---|---|
-| Korea | 10 | Greenstar (48.6) | 9 others |
+| Korea | 11 | Greenstar (48.6), Sejong (48.6) | 9 others |
 | Australia | 4 | All 4 (58.5.2) | — |
 | Ukraine | 4 | None | All 4 |
 | France | 2 | Both (58.4.2) | — |
 | New Zealand | 3 | None | All 3 |
 | Russia | 2 | None | Both |
 | United Kingdom | 2 | Both (48.3) | — |
+| Chile | 1 | Yes (48.x/58.x) | — |
 | Japan | 1 | Yes (48.6, 58.4.x) | — |
 | Namibia | 1 | None | 1 (88.x) |
 | South Africa/Chile | 1 | Yes (58.7) | — |
 | Spain | 1 | Yes (48.6) | — |
 | Uruguay | 1 | None | 1 (88.x) |
-| **Total** | **32** | **15 vessels with 48.x/58.x auth** | **17 vessels** |
+| **Total** | **34** | **17 vessels with 48.x/58.x auth** | **17 vessels** |
 
 ---
 
@@ -191,9 +207,10 @@ Vessels are grouped by flag state. Each vessel may have multiple authorization r
 
 These vessels are CCAMLR authorized but have no Dissostichus authorization. Not relevant to your business.
 
+> **Note:** Antarctic Endeavour and Sejong were previously listed here as krill-only, but both were confirmed toothfish-authorized on the current CCAMLR list (July 2026 verification) and have been moved to their respective flag sections above and added to the Codwatch DB.
+
 | Vessel | Flag |
 |---|---|
-| Antarctic Endeavour | Chile |
 | Fu Xing Hai | China |
 | Fu Yuan Yu 9199 | China |
 | Hua Xiang 9 | China |
@@ -201,7 +218,6 @@ These vessels are CCAMLR authorized but have no Dissostichus authorization. Not 
 | Shen Lan | China |
 | Yong Li | China |
 | Sae In Leader | Korea |
-| Sejong | Korea |
 | More Sodruzhestva | Namibia |
 | Antarctic Endurance | Norway |
 | Antarctic Sea | Norway |

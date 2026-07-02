@@ -20,41 +20,69 @@ function sortValue(vessel, key) {
   }
 }
 
-function VesselCard({ vessel, included, onToggleInclude, onViewDetail }) {
-  const hasGfw   = !!vessel.gfw_vessel_id
-  const lastSeen = vessel.last_fishing_date
-    ? new Date(vessel.last_fishing_date).toLocaleDateString('en-AU', { month: 'short', day: 'numeric', year: '2-digit' })
+function fmtDate(iso) {
+  return iso
+    ? new Date(iso).toLocaleDateString('en-AU', { month: 'short', day: 'numeric', year: 'numeric' })
     : '—'
+}
+
+function fmtAliases(aliases) {
+  if (!aliases || aliases.length === 0) return null
+  return aliases
+    .map(a => {
+      const from = a.active_from ? new Date(a.active_from).getFullYear() : null
+      const to   = a.active_to ? new Date(a.active_to).getFullYear() : (from ? 'present' : null)
+      return from ? `${a.name} (${from}–${to})` : a.name
+    })
+    .join(', ')
+}
+
+function VesselRow({ vessel, included, onToggleInclude, onViewDetail }) {
+  const hasGfw = !!vessel.gfw_vessel_id
+  const aliasText = fmtAliases(vessel.aliases)
 
   return (
-    <div
-      className={`tracker-card ${!hasGfw ? 'tracker-card--untracked' : ''}`}
+    <tr
+      className={`tracker-row ${!hasGfw ? 'tracker-row--untracked' : ''}`}
       onClick={() => hasGfw && onViewDetail(vessel)}
     >
-      <div className="tracker-card-header">
+      <td className="tracker-cell-check" onClick={e => e.stopPropagation()}>
         {hasGfw && (
           <input
             type="checkbox"
             className="tracker-include-checkbox"
             checked={included}
             onChange={() => onToggleInclude(vessel.id)}
-            onClick={e => e.stopPropagation()}
             title={included ? 'Tracked' : 'Not tracked'}
           />
         )}
-        <span className="tracker-name">{vessel.vessel_name}</span>
-        <span className="tracker-flag">{flagFor(vessel.flag)}</span>
-        {!hasGfw && <span className="no-gfw-badge">no GFW</span>}
-      </div>
-      {hasGfw && (
-        <div className="tracker-card-stats">
-          <span title="Fishing events">⚓ {Number(vessel.fishing_event_count).toLocaleString()}</span>
-          <span title="Encounters">🤝 {vessel.encounter_count}</span>
-          <span title="AIS gaps">📡 {vessel.ais_gap_count}</span>
-          <span className="tracker-last-seen" title="Last fishing event">{lastSeen}</span>
+      </td>
+      <td className="tracker-cell-vessel">
+        <div className="tracker-vessel-inner">
+          <span className="tracker-name">{vessel.vessel_name}</span>
+          {!hasGfw && <span className="no-gfw-badge">no GFW match</span>}
         </div>
+      </td>
+      <td className="tracker-cell-country">
+        <div className="tracker-country-inner">
+          <span className="tracker-flag">{flagFor(vessel.flag)}</span>
+          <span className="tracker-country-name">{vessel.flag}</span>
+        </div>
+      </td>
+      <td className="tracker-cell-aliases" title={aliasText || ''}>
+        {aliasText ? `aka ${aliasText}` : '—'}
+      </td>
+      {hasGfw ? (
+        <>
+          <td className="tracker-cell-num">{Number(vessel.fishing_event_count).toLocaleString()}</td>
+          <td className="tracker-cell-num">{vessel.encounter_count}</td>
+          <td className="tracker-cell-num">{vessel.ais_gap_count}</td>
+          <td className="tracker-cell-date">{fmtDate(vessel.last_fishing_date)}</td>
+        </>
+      ) : (
+        <td className="tracker-cell-num tracker-cell-muted" colSpan={4}>No GFW tracking data available</td>
       )}
-    </div>
+    </tr>
   )
 }
 
@@ -118,31 +146,44 @@ export default function VesselTracker({ vessels, includedIds, onToggleInclude, o
       </div>
 
       <div className="tracker-scroll">
-        <div className="tracker-grid">
-          {tracked.map(v => (
-            <VesselCard
-              key={v.id}
-              vessel={v}
-              included={includedIds.has(v.id)}
-              onToggleInclude={onToggleInclude}
-              onViewDetail={onViewDetail}
-            />
-          ))}
-        </div>
-
-        {untracked.length > 0 && (
-          <>
-            <div className="tracker-divider">No GFW match ({untracked.length})</div>
-            <div className="tracker-grid">
-              {untracked.map(v => (
-                <VesselCard key={v.id} vessel={v} included={false} onToggleInclude={() => {}} onViewDetail={() => {}} />
-              ))}
-            </div>
-          </>
-        )}
-
-        {tracked.length === 0 && untracked.length === 0 && (
+        {tracked.length === 0 && untracked.length === 0 ? (
           <div className="tracker-empty">No vessels match "{query}"</div>
+        ) : (
+          <table className="tracker-table">
+            <thead>
+              <tr>
+                <th className="tracker-cell-check">Track</th>
+                <th>Vessel</th>
+                <th>Country</th>
+                <th>Aliases</th>
+                <th className="tracker-cell-num">⚓ Fishing Events</th>
+                <th className="tracker-cell-num">🤝 Encounters</th>
+                <th className="tracker-cell-num">📡 AIS Gaps</th>
+                <th className="tracker-cell-date">Last Fishing Event</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tracked.map(v => (
+                <VesselRow
+                  key={v.id}
+                  vessel={v}
+                  included={includedIds.has(v.id)}
+                  onToggleInclude={onToggleInclude}
+                  onViewDetail={onViewDetail}
+                />
+              ))}
+              {untracked.length > 0 && (
+                <>
+                  <tr className="tracker-divider-row">
+                    <td colSpan={8}>No GFW match ({untracked.length})</td>
+                  </tr>
+                  {untracked.map(v => (
+                    <VesselRow key={v.id} vessel={v} included={false} onToggleInclude={() => {}} onViewDetail={() => {}} />
+                  ))}
+                </>
+              )}
+            </tbody>
+          </table>
         )}
       </div>
     </div>

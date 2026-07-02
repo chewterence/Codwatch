@@ -25,6 +25,7 @@ export default function App() {
   const [activeTab, setActiveTab]           = useState('fishing')
   const [activeView, setActiveView]         = useState('tracker')
   const [includedIds, setIncludedIds]       = useState(new Set())
+  const [statsExpanded, setStatsExpanded]   = useState(true)
   const hydrated = useRef(false)
 
   useEffect(() => {
@@ -121,20 +122,30 @@ export default function App() {
         </nav>
 
         <div className="topbar-stats">
-          {summary ? (
-            <>
-              <StatBadge label="Fleet" value={`${summary.tracked_vessels} / ${summary.total_vessels} vessels`} />
-              <StatBadge label="Fishing Events" value={Number(summary.total_fishing_events).toLocaleString()} />
-              <StatBadge label="Encounters" value={summary.total_encounters} />
-              <StatBadge label="AIS Gaps" value={summary.total_ais_gaps} />
-              <StatBadge label="Port Visits" value={summary.total_port_visits} />
-              {summary.last_event_date && (
-                <StatBadge label="Last Event" value={summary.last_event_date} highlight />
-              )}
-            </>
-          ) : (
-            <span className="loading-text">Loading...</span>
+          {statsExpanded && (
+            summary ? (
+              <>
+                <StatBadge label="Fleet" value={`${summary.tracked_vessels} / ${summary.total_vessels} vessels`} />
+                <StatBadge label="Fishing Events" value={Number(summary.total_fishing_events).toLocaleString()} />
+                <StatBadge label="Encounters" value={summary.total_encounters} />
+                <StatBadge label="AIS Gaps" value={summary.total_ais_gaps} />
+                <StatBadge label="Port Visits" value={summary.total_port_visits} />
+                {summary.last_event_date && (
+                  <StatBadge label="Last Event" value={summary.last_event_date} highlight />
+                )}
+              </>
+            ) : (
+              <span className="loading-text">Loading...</span>
+            )
           )}
+          <button
+            className="stats-toggle"
+            onClick={() => setStatsExpanded(e => !e)}
+            title={statsExpanded ? 'Hide fleet stats' : 'Show fleet stats'}
+          >
+            <span className={`stats-toggle-icon ${statsExpanded ? 'stats-toggle-icon--expanded' : ''}`}>▸</span>
+            Stats
+          </button>
         </div>
       </header>
 
@@ -158,12 +169,7 @@ export default function App() {
             {showDetail ? (
               <VesselDetail vessel={selectedVessel} onBack={handleBack} />
             ) : (
-              <>
-                <FleetMap
-                  selectedVessel={selectedVessel}
-                  includedIds={includedIds}
-                  onSelectVesselId={handleSelectVesselId}
-                />
+              <div className="fleet-layout">
                 <EventsPanel
                   selectedVessel={selectedVessel}
                   includedIds={includedIds}
@@ -171,7 +177,12 @@ export default function App() {
                   onTabChange={setActiveTab}
                   onSelectVesselId={handleSelectVesselId}
                 />
-              </>
+                <FleetMap
+                  selectedVessel={selectedVessel}
+                  includedIds={includedIds}
+                  onSelectVesselId={handleSelectVesselId}
+                />
+              </div>
             )}
           </div>
         )}
