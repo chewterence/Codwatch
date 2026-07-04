@@ -214,6 +214,19 @@
   border-radius: 3px;
 }
 
+.new-to-ais-badge {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: #0c2d3d;
+  color: #38bdf8;
+  padding: 1px 6px;
+  border-radius: 3px;
+  cursor: help;
+  flex-shrink: 0;
+}
+
 .tracker-cell-num {
   text-align: right;
   font-variant-numeric: tabular-nums;

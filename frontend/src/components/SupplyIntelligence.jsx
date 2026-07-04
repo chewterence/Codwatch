@@ -38,6 +38,19 @@ function seasonLabel(year) {
   return `${y.slice(2)}/${String(Number(y) + 1).slice(2)}`
 }
 
+// Calendar date range for a season-relative week bucket, anchored to the
+// current season's Dec 1 start (bucket 1 = days 1–7 after Dec 1).
+function weekDateRange(bucket, seasonYear) {
+  const year  = Number(seasonYear)
+  const start = new Date(year, 11, 1 + (bucket - 1) * 7)
+  const end   = new Date(year, 11, 1 + (bucket - 1) * 7 + 6)
+  const short = (d) => d.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })
+  const full  = (d) => d.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })
+  return start.getFullYear() === end.getFullYear()
+    ? `${short(start)} – ${full(end)}`
+    : `${full(start)} – ${full(end)}`
+}
+
 // Derive cumulative data from raw periodic data on the frontend
 function computeCumulative(rawData, seasons) {
   const running = {}
@@ -66,12 +79,17 @@ function truncateToday(data, currentSeason, todayBucket) {
   })
 }
 
-function CustomTooltip({ active, payload, label, granularity }) {
+function CustomTooltip({ active, payload, label, granularity, currentSeason }) {
   if (!active || !payload?.length) return null
-  const xLabel = granularity === 'monthly' ? MONTH_LABELS[label - 1] : `Week ${label}`
+  const isWeekly = granularity === 'weekly'
+  const xLabel = isWeekly ? `Week ${label}` : MONTH_LABELS[label - 1]
+  const dateRange = isWeekly && currentSeason ? weekDateRange(label, currentSeason) : null
   return (
     <div className="si-tooltip">
-      <div className="si-tooltip-head">{xLabel}</div>
+      <div className="si-tooltip-head">
+        {xLabel}
+        {dateRange && <span className="si-tooltip-daterange">{dateRange}</span>}
+      </div>
       {payload.map(p => (
         <div key={p.dataKey} className="si-tooltip-row">
           <span className="si-tooltip-dot" style={{ background: p.color }} />
@@ -196,7 +214,7 @@ export default function SupplyIntelligence({ includedIds }) {
       )}
 
       {noVesselsTracked ? (
-        <div className="si-empty-state">No vessels tracked — head to <strong>Vessel Tracker</strong> to select vessels.</div>
+        <div className="si-empty-state">No vessels tracked — head to <strong>Fishing Vessel Tracking</strong> to select vessels.</div>
       ) : loading ? (
         <div className="si-loading">Loading…</div>
       ) : (
@@ -214,7 +232,7 @@ export default function SupplyIntelligence({ includedIds }) {
                   <CartesianGrid stroke="#1e2240" strokeDasharray="4 4" vertical={false} />
                   <XAxis {...sharedXAxis(xFmt, isWeekly)} />
                   <YAxis {...sharedYAxis(v => `${(v / 1000).toFixed(1)}k`)} />
-                  <Tooltip content={<CustomTooltip granularity={granularity} />} />
+                  <Tooltip content={<CustomTooltip granularity={granularity} currentSeason={currentSeason} />} />
                   {todayLine}
                   {seasons.map(year => (
                     <Bar
@@ -246,7 +264,7 @@ export default function SupplyIntelligence({ includedIds }) {
                   <CartesianGrid stroke="#1e2240" strokeDasharray="4 4" vertical={false} />
                   <XAxis {...sharedXAxis(xFmt, isWeekly)} />
                   <YAxis {...sharedYAxis(v => `${(v / 1000).toFixed(0)}k`)} />
-                  <Tooltip content={<CustomTooltip granularity={granularity} />} />
+                  <Tooltip content={<CustomTooltip granularity={granularity} currentSeason={currentSeason} />} />
                   {todayLine}
                   {seasons.map(year => (
                     <Line

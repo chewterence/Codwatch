@@ -105,7 +105,7 @@ export default function App() {
             className={`nav-tab ${activeView === 'tracker' ? 'nav-tab--active' : ''}`}
             onClick={() => handleViewChange('tracker')}
           >
-            Vessel Tracker
+            Fishing Vessel Tracking
           </button>
           <button
             className={`nav-tab ${activeView === 'fleet' ? 'nav-tab--active' : ''}`}

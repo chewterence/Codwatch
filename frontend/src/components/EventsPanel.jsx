@@ -233,7 +233,7 @@ export default function EventsPanel({ selectedVessel, includedIds, activeTab, on
       </div>
       <div className="events-body">
         {noVesselsTracked ? (
-          <div className="empty-state">No vessels tracked — head to <strong>Vessel Tracker</strong> to select vessels.</div>
+          <div className="empty-state">No vessels tracked — head to <strong>Fishing Vessel Tracking</strong> to select vessels.</div>
         ) : (
           <>
             {activeTab === 'fishing'    && <FishingTable    rows={data.fishing}    onSelectVesselId={onSelectVesselId} />}

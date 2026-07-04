@@ -82,6 +82,7 @@ def get_vessels():
             v.gfw_ssvid,
             v.gfw_flag,
             v.gfw_geartypes,
+            v.gfw_ais_from,
             v.gfw_ais_to,
             v.gfw_match_confidence,
             v.eleginoides_authorized,
@@ -215,6 +216,8 @@ def get_port_visits(
 def get_encounters(
     vessel_id: int = Query(None),
     vessel_ids: str = Query(None),
+    encounter_type: str = Query(None),
+    days: int = Query(None),
     limit: int = Query(100, le=500),
 ):
     conditions = []
@@ -227,6 +230,14 @@ def get_encounters(
     if vessel_ids:
         conditions.append("e.vessel_id = ANY(%s)")
         params.append([int(v) for v in vessel_ids.split(",") if v])
+
+    if encounter_type:
+        conditions.append("e.encounter_type = %s")
+        params.append(encounter_type)
+
+    if days:
+        conditions.append("e.start_time >= NOW() - (%s || ' days')::interval")
+        params.append(days)
 
     where = ("WHERE " + " AND ".join(conditions)) if conditions else ""
 

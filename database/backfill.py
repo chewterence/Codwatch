@@ -55,6 +55,11 @@ DATASETS   = {
     "ais_gap":    "public-global-gaps-events:latest",
 }
 
+# Carrier vessels don't fish — only their port history (via loitering→nextPort) is tracked.
+CARRIER_DATASETS = {
+    "port_visit": "public-global-loitering-events:latest",
+}
+
 DATABASE_URL = os.environ.get("DATABASE_URL", "postgresql://localhost/codwatch")
 
 _DIR         = os.path.dirname(os.path.abspath(__file__))
@@ -190,6 +195,57 @@ def load_vessels(conn) -> List[Dict[str, Any]]:
         rows = cur.fetchall()
     return [
         {"id": r[0], "vessel_name": r[1], "gfw_vessel_id": r[2], "gfw_ssvid": r[3]}
+        for r in rows
+    ]
+
+
+def seed_carriers(conn) -> None:
+    """Discover carrier vessels from fishing-carrier encounters and upsert into carrier_vessels."""
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT encountered_vessel_id, encountered_vessel_name, encountered_vessel_flag,
+                   MIN(start_time) AS first_seen, MAX(start_time) AS last_seen
+            FROM encounters
+            WHERE encounter_type = 'fishing-carrier' AND encountered_vessel_id IS NOT NULL
+            GROUP BY encountered_vessel_id, encountered_vessel_name, encountered_vessel_flag
+        """)
+        rows = cur.fetchall()
+
+        inserted = 0
+        updated  = 0
+        for gfw_id, name, flag, first_seen, last_seen in rows:
+            cur.execute("""
+                INSERT INTO carrier_vessels
+                    (gfw_vessel_id, vessel_name, flag, first_encountered, last_encountered)
+                VALUES (%s, %s, %s, %s, %s)
+                ON CONFLICT (gfw_vessel_id) DO UPDATE SET
+                    vessel_name       = EXCLUDED.vessel_name,
+                    flag              = EXCLUDED.flag,
+                    first_encountered = LEAST(carrier_vessels.first_encountered, EXCLUDED.first_encountered),
+                    last_encountered  = GREATEST(carrier_vessels.last_encountered, EXCLUDED.last_encountered),
+                    updated_at        = NOW()
+                RETURNING (xmax = 0) AS inserted
+            """, (gfw_id, name, flag, first_seen, last_seen))
+            if cur.fetchone()[0]:
+                inserted += 1
+            else:
+                updated += 1
+
+    conn.commit()
+    print(f"  Carriers seeded: {inserted} inserted, {updated} updated")
+
+
+def load_carriers(conn) -> List[Dict[str, Any]]:
+    """Return all discovered carrier vessels."""
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT id, vessel_name, gfw_vessel_id
+            FROM carrier_vessels
+            ORDER BY vessel_name
+        """)
+        rows = cur.fetchall()
+    return [
+        {"id": r[0], "vessel_name": r[1], "gfw_vessel_id": r[2]}
         for r in rows
     ]
 
@@ -364,6 +420,55 @@ def store_port_visits(conn, vessel_db_id: int, events: List[Dict[str, Any]]) -> 
     return len(rows)
 
 
+def store_carrier_port_visits(conn, carrier_db_id: int, events: List[Dict[str, Any]]) -> int:
+    """Same extraction as store_port_visits, written to carrier_port_visits instead."""
+    if not events:
+        return 0
+
+    best: Dict[str, Dict[str, Any]] = {}
+    for e in events:
+        vessel_info = e.get("vessel") or {}
+        next_port   = vessel_info.get("nextPort") or {}
+        pv_id       = next_port.get("portVisitEventId")
+        port_name   = next_port.get("name")
+        if not pv_id or not port_name:
+            continue
+        if pv_id not in best or (e.get("end") or "") > (best[pv_id]["end"] or ""):
+            best[pv_id] = {
+                "pv_id":      pv_id,
+                "port_name":  port_name,
+                "port_flag":  next_port.get("flag"),
+                "port_id":    next_port.get("id"),
+                "end":        e.get("end"),
+            }
+
+    if not best:
+        return 0
+
+    rows = []
+    for v in best.values():
+        rows.append((
+            v["pv_id"],
+            carrier_db_id,
+            v["end"],
+            v["port_name"],
+            v["port_id"],
+            v["port_flag"],
+            2,
+            psycopg2.extras.Json({}),
+        ))
+
+    with conn.cursor() as cur:
+        psycopg2.extras.execute_values(cur, """
+            INSERT INTO carrier_port_visits
+                (event_id, carrier_id, start_time, port_name, port_id, port_flag, confidence, raw)
+            VALUES %s
+            ON CONFLICT (event_id) DO NOTHING
+        """, rows)
+    conn.commit()
+    return len(rows)
+
+
 def store_encounters(conn, vessel_db_id: int, events: List[Dict[str, Any]]) -> int:
     if not events:
         return 0
@@ -453,6 +558,10 @@ STORE_FN = {
     "ais_gap":    store_ais_gaps,
 }
 
+CARRIER_STORE_FN = {
+    "port_visit": store_carrier_port_visits,
+}
+
 
 # ============================================================
 # Backfill log
@@ -486,6 +595,37 @@ def log_backfill(
                 (vessel_id, event_type, period_from, period_to, events_fetched, status, error_msg)
             VALUES (%s, %s, %s, %s, %s, %s, %s)
         """, (vessel_id, event_type, period_from, period_to, events_fetched, status, error_msg))
+    conn.commit()
+
+
+def already_fetched_carrier(conn, carrier_id: int, event_type: str, period_from: date, period_to: date) -> bool:
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT 1 FROM carrier_backfill_log
+            WHERE carrier_id = %s AND event_type = %s
+              AND period_from = %s AND period_to = %s
+              AND status = 'success'
+            LIMIT 1
+        """, (carrier_id, event_type, period_from, period_to))
+        return cur.fetchone() is not None
+
+
+def log_carrier_backfill(
+    conn,
+    carrier_id: int,
+    event_type: str,
+    period_from: date,
+    period_to: date,
+    events_fetched: int,
+    status: str,
+    error_msg: Optional[str],
+) -> None:
+    with conn.cursor() as cur:
+        cur.execute("""
+            INSERT INTO carrier_backfill_log
+                (carrier_id, event_type, period_from, period_to, events_fetched, status, error_msg)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+        """, (carrier_id, event_type, period_from, period_to, events_fetched, status, error_msg))
     conn.commit()
 
 
@@ -523,14 +663,64 @@ def backfill_vessel(conn, vessel: Dict[str, Any], api_key: str, end_date: date) 
             print(f"  {event_type:12s}  total: {total_events}")
 
 
+def backfill_carrier(conn, carrier: Dict[str, Any], api_key: str, end_date: date) -> None:
+    carrier_db_id = carrier["id"]
+    gfw_vessel_id = carrier["gfw_vessel_id"]
+
+    chunks = date_chunks(BACKFILL_START, end_date, CHUNK_DAYS)
+
+    for event_type, dataset in CARRIER_DATASETS.items():
+        total_events = 0
+        for chunk_start, chunk_end in chunks:
+            if already_fetched_carrier(conn, carrier_db_id, event_type, chunk_start, chunk_end):
+                continue
+
+            try:
+                events = fetch_events(gfw_vessel_id, dataset, chunk_start, chunk_end, api_key)
+                count  = CARRIER_STORE_FN[event_type](conn, carrier_db_id, events)
+                log_carrier_backfill(conn, carrier_db_id, event_type, chunk_start, chunk_end, count, "success", None)
+                total_events += count
+                if count:
+                    print(f"    [{event_type:11s}] {chunk_start} → {chunk_end}: {count} events")
+            except Exception as exc:
+                log_carrier_backfill(conn, carrier_db_id, event_type, chunk_start, chunk_end, 0, "error", str(exc))
+                print(f"    [{event_type:11s}] {chunk_start} → {chunk_end}: ERROR — {exc}")
+
+            time.sleep(SLEEP_SEC)
+
+        if total_events:
+            print(f"  {event_type:12s}  total: {total_events}")
+
+
 # ============================================================
 # Main
 # ============================================================
 
-def run(seed_only: bool = False, vessel_filter: Optional[str] = None) -> None:
+def run(seed_only: bool = False, vessel_filter: Optional[str] = None, carriers_only: bool = False) -> None:
     api_key  = load_secrets()
     conn     = get_db_conn()
     end_date = date.today() - timedelta(days=GFW_LAG_DAYS)
+
+    if carriers_only:
+        print("Seeding carrier vessels from fishing-carrier encounters...")
+        seed_carriers(conn)
+
+        carriers = load_carriers(conn)
+        print(f"\nBackfilling {len(carriers)} carrier vessels | {BACKFILL_START} → {end_date}\n")
+
+        for i, carrier in enumerate(carriers, 1):
+            print(f"[{i:02d}/{len(carriers)}] {carrier['vessel_name']}  (GFW: {carrier['gfw_vessel_id']})")
+            backfill_carrier(conn, carrier, api_key, end_date)
+
+        conn.close()
+
+        print("\n" + "=" * 60)
+        print("Carrier backfill complete.")
+        print("=" * 60)
+        print()
+        print("Useful queries to verify:")
+        print("  SELECT cv.vessel_name, COUNT(*) FROM carrier_port_visits cpv JOIN carrier_vessels cv ON cv.id=cpv.carrier_id GROUP BY 1 ORDER BY 2 DESC;")
+        return
 
     print("Seeding vessels and authorizations...")
     seed_vessels(conn)
@@ -572,6 +762,8 @@ if __name__ == "__main__":
                         help="Only seed vessels table, do not fetch events")
     parser.add_argument("--vessel",     type=str, default=None,
                         help="Only backfill vessel(s) matching this name substring")
+    parser.add_argument("--carriers",   action="store_true",
+                        help="Discover and backfill carrier vessels (from fishing-carrier encounters) instead of the tracked fleet")
     args = parser.parse_args()
 
-    run(seed_only=args.seed_only, vessel_filter=args.vessel)
+    run(seed_only=args.seed_only, vessel_filter=args.vessel, carriers_only=args.carriers)

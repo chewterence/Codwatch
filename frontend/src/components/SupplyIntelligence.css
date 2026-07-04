@@ -207,12 +207,22 @@
 }
 
 .si-tooltip-head {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
   color: #64748b;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 6px;
   font-size: 10px;
+}
+
+.si-tooltip-daterange {
+  color: #374151;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
 }
 
 .si-tooltip-row {

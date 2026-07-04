@@ -37,9 +37,27 @@ function fmtAliases(aliases) {
     .join(', ')
 }
 
+// A vessel only recently started transmitting AIS and has no fishing/encounter/gap
+// history yet — distinct from a vessel that's been tracked for years but genuinely
+// has no recorded activity (that's a different, more concerning story).
+const NEW_TO_AIS_DAYS = 90
+
+function newToAisInfo(vessel) {
+  if (!vessel.gfw_vessel_id || !vessel.gfw_ais_from) return null
+  const hasActivity = vessel.fishing_event_count || vessel.encounter_count || vessel.ais_gap_count
+  if (hasActivity) return null
+
+  const firstSeen  = new Date(vessel.gfw_ais_from)
+  const daysTracked = (Date.now() - firstSeen.getTime()) / 86400000
+  if (daysTracked > NEW_TO_AIS_DAYS) return null
+
+  return `New to AIS tracking — first seen broadcasting on ${firstSeen.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })}. No fishing, encounter, or AIS-gap activity recorded yet.`
+}
+
 function VesselRow({ vessel, included, onToggleInclude, onViewDetail }) {
   const hasGfw = !!vessel.gfw_vessel_id
   const aliasText = fmtAliases(vessel.aliases)
+  const newToAisTooltip = newToAisInfo(vessel)
 
   return (
     <tr
@@ -61,6 +79,9 @@ function VesselRow({ vessel, included, onToggleInclude, onViewDetail }) {
         <div className="tracker-vessel-inner">
           <span className="tracker-name">{vessel.vessel_name}</span>
           {!hasGfw && <span className="no-gfw-badge">no GFW match</span>}
+          {newToAisTooltip && (
+            <span className="new-to-ais-badge" title={newToAisTooltip}>new</span>
+          )}
         </div>
       </td>
       <td className="tracker-cell-country">
@@ -111,7 +132,7 @@ export default function VesselTracker({ vessels, includedIds, onToggleInclude, o
   return (
     <div className="tracker-page">
       <div className="tracker-header">
-        <span className="tracker-title">Vessel Tracker</span>
+        <span className="tracker-title">Fishing Vessel Tracking</span>
         <span className="tracker-count">{includedIds.size} / {totalTracked} tracked</span>
       </div>
 

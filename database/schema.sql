@@ -191,6 +191,65 @@ CREATE INDEX IF NOT EXISTS idx_gap_hours       ON ais_gaps(gap_hours DESC);
 -- ORDER BY ag.gap_hours DESC;
 
 -- ============================================================
+-- CARRIER VESSEL TRACKING
+-- ============================================================
+-- Carrier vessels (reefers) are discovered from encounters.encountered_vessel_*
+-- where encounter_type = 'fishing-carrier' — i.e. vessels that took on toothfish
+-- catch from a tracked vessel. They are not CCAMLR-authorized fishing vessels,
+-- so they get their own identity + port-visit tables rather than living in
+-- vessels/port_visits.
+
+CREATE TABLE IF NOT EXISTS carrier_vessels (
+    id                SERIAL PRIMARY KEY,
+    gfw_vessel_id     TEXT NOT NULL UNIQUE,   -- = encounters.encountered_vessel_id
+    vessel_name       TEXT NOT NULL,
+    flag              TEXT,
+    gfw_ssvid         TEXT,
+    gfw_imo           TEXT,
+    gfw_callsign      TEXT,
+    first_encountered TIMESTAMPTZ,            -- earliest fishing-carrier encounter with our fleet
+    last_encountered  TIMESTAMPTZ,
+    created_at        TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at        TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Port visits for carrier vessels, sourced the same way as vessels' port_visits:
+-- public-global-loitering-events:latest → vessel.nextPort, deduplicated by portVisitEventId.
+CREATE TABLE IF NOT EXISTS carrier_port_visits (
+    event_id       TEXT PRIMARY KEY,
+    carrier_id     INTEGER NOT NULL REFERENCES carrier_vessels(id) ON DELETE CASCADE,
+    start_time     TIMESTAMPTZ NOT NULL,
+    port_name      TEXT,
+    port_id        TEXT,
+    port_flag      TEXT,
+    confidence     INTEGER,
+    raw            JSONB NOT NULL,
+    ingested_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_carrier_port_vessel_time ON carrier_port_visits(carrier_id, start_time DESC);
+CREATE INDEX IF NOT EXISTS idx_carrier_port_start       ON carrier_port_visits(start_time DESC);
+
+-- Query: "which ports has this carrier visited"
+-- SELECT cpv.port_name, cpv.port_flag, cpv.start_time::date AS approx_arrival
+-- FROM carrier_port_visits cpv WHERE cpv.carrier_id = <id>
+-- ORDER BY cpv.start_time DESC;
+
+CREATE TABLE IF NOT EXISTS carrier_backfill_log (
+    id              SERIAL PRIMARY KEY,
+    carrier_id      INTEGER REFERENCES carrier_vessels(id),
+    event_type      TEXT NOT NULL,      -- port_visit (loitering-derived)
+    period_from     DATE NOT NULL,
+    period_to       DATE NOT NULL,
+    events_fetched  INTEGER NOT NULL DEFAULT 0,
+    status          TEXT NOT NULL DEFAULT 'success',
+    error_msg       TEXT,
+    fetched_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_carrier_backfill_lookup ON carrier_backfill_log(carrier_id, event_type, period_from);
+
+-- ============================================================
 -- BACKFILL TRACKING
 -- ============================================================
 

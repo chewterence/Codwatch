@@ -1,6 +1,17 @@
 import { useEffect, useState, useRef } from 'react'
-import { MapContainer, TileLayer, CircleMarker, Popup, AttributionControl, useMap } from 'react-leaflet'
+import { MapContainer, TileLayer, CircleMarker, Marker, Popup, AttributionControl, useMap } from 'react-leaflet'
+import L from 'leaflet'
 import './FleetMap.css'
+
+// Distinct marker for fishing-carrier encounters (potential transshipment) —
+// a diamond shape in an alert colour, deliberately different from the
+// per-vessel coloured dots used for fishing events.
+const carrierIcon = L.divIcon({
+  className: 'carrier-marker-wrapper',
+  html: '<div class="carrier-marker-diamond"></div>',
+  iconSize: [14, 14],
+  iconAnchor: [7, 7],
+})
 
 // Vessel colour palette — one colour per vessel id (cycles if > palette length)
 const PALETTE = [
@@ -50,6 +61,7 @@ function MapResizeSync() {
 
 export default function FleetMap({ selectedVessel, includedIds, onSelectVesselId }) {
   const [events, setEvents] = useState([])
+  const [carrierEncounters, setCarrierEncounters] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -74,6 +86,26 @@ export default function FleetMap({ selectedVessel, includedIds, onSelectVesselId
       .catch(() => setLoading(false))
   }, [selectedVessel, includedIds])
 
+  useEffect(() => {
+    if (!selectedVessel && includedIds && includedIds.size === 0) {
+      setCarrierEncounters([])
+      return
+    }
+
+    const params = new URLSearchParams({ limit: 200, encounter_type: 'fishing-carrier' })
+    if (selectedVessel) {
+      params.set('vessel_id', selectedVessel.id)
+    } else {
+      params.set('days', 180)
+      if (includedIds) params.set('vessel_ids', [...includedIds].join(','))
+    }
+
+    fetch(`/api/encounters?${params}`)
+      .then(r => r.json())
+      .then(setCarrierEncounters)
+      .catch(() => {})
+  }, [selectedVessel, includedIds])
+
   const noVesselsTracked = !selectedVessel && includedIds && includedIds.size === 0
 
   return (
@@ -81,7 +113,7 @@ export default function FleetMap({ selectedVessel, includedIds, onSelectVesselId
       {loading && <div className="map-loading">Loading events…</div>}
       {noVesselsTracked && (
         <div className="map-empty-state">
-          No vessels tracked — head to <strong>Vessel Tracker</strong> to select vessels.
+          No vessels tracked — head to <strong>Fishing Vessel Tracking</strong> to select vessels.
         </div>
       )}
       <MapContainer
@@ -133,12 +165,35 @@ export default function FleetMap({ selectedVessel, includedIds, onSelectVesselId
             </Popup>
           </CircleMarker>
         ))}
+        {carrierEncounters.map(e => (
+          <Marker key={e.event_id} position={[e.lat, e.lon]} icon={carrierIcon}>
+            <Popup>
+              <div className="map-popup">
+                <strong>⚠ Potential transshipment</strong>
+                <span>{e.vessel_name} met {e.encountered_vessel_name || 'carrier vessel'}</span>
+                {e.encountered_vessel_flag && <span>Carrier flag: {e.encountered_vessel_flag}</span>}
+                <span>{fmt(e.start_time)}</span>
+                {e.duration_hours && <span>{e.duration_hours.toFixed(1)} hrs alongside</span>}
+                {onSelectVesselId && (
+                  <button className="popup-detail-link" onClick={() => onSelectVesselId(e.vessel_id)}>
+                    View vessel details →
+                  </button>
+                )}
+              </div>
+            </Popup>
+          </Marker>
+        ))}
       </MapContainer>
       <div className="map-overlay">
         {selectedVessel
           ? `${events.length} events — ${selectedVessel.vessel_name}`
           : `${events.length} events — last 6 months (${includedIds ? includedIds.size : 'all'} tracked vessels)`}
       </div>
+      {carrierEncounters.length > 0 && (
+        <div className="map-legend">
+          <span className="carrier-marker-diamond" /> Potential transshipment ({carrierEncounters.length})
+        </div>
+      )}
     </div>
   )
 }
