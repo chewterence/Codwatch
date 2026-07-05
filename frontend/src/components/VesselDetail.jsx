@@ -1,61 +1,7 @@
 import { useState, useEffect } from 'react'
 import VoyageTimeline from './VoyageTimeline'
-import { flagFor } from '../flags'
+import { flagFor, portFlagDisplay } from '../flags'
 import './VesselDetail.css'
-
-// ISO3 → { emoji, name } for all port_flag values that appear in the database
-const PORT_FLAG = {
-  AGO: { iso2:'AO', name:'Angola' },
-  ARG: { iso2:'AR', name:'Argentina' },
-  ATF: { iso2:'TF', name:'French Southern Territories' },
-  AUS: { iso2:'AU', name:'Australia' },
-  BRA: { iso2:'BR', name:'Brazil' },
-  CAN: { iso2:'CA', name:'Canada' },
-  CHL: { iso2:'CL', name:'Chile' },
-  CHN: { iso2:'CN', name:'China' },
-  CIV: { iso2:'CI', name:'Côte d\'Ivoire' },
-  COD: { iso2:'CD', name:'DR Congo' },
-  CPV: { iso2:'CV', name:'Cape Verde' },
-  ESP: { iso2:'ES', name:'Spain' },
-  FJI: { iso2:'FJ', name:'Fiji' },
-  FLK: { iso2:'FK', name:'Falkland Islands' },
-  FRA: { iso2:'FR', name:'France' },
-  GBR: { iso2:'GB', name:'United Kingdom' },
-  GHA: { iso2:'GH', name:'Ghana' },
-  GNB: { iso2:'GW', name:'Guinea-Bissau' },
-  IND: { iso2:'IN', name:'India' },
-  JPN: { iso2:'JP', name:'Japan' },
-  KOR: { iso2:'KR', name:'South Korea' },
-  MDG: { iso2:'MG', name:'Madagascar' },
-  MOZ: { iso2:'MZ', name:'Mozambique' },
-  MRT: { iso2:'MR', name:'Mauritania' },
-  MUS: { iso2:'MU', name:'Mauritius' },
-  NAM: { iso2:'NA', name:'Namibia' },
-  NGA: { iso2:'NG', name:'Nigeria' },
-  NOR: { iso2:'NO', name:'Norway' },
-  NZL: { iso2:'NZ', name:'New Zealand' },
-  PER: { iso2:'PE', name:'Peru' },
-  PRT: { iso2:'PT', name:'Portugal' },
-  REU: { iso2:'RE', name:'Réunion' },
-  RUS: { iso2:'RU', name:'Russia' },
-  SEN: { iso2:'SN', name:'Senegal' },
-  SGS: { iso2:'GS', name:'South Georgia' },
-  SHN: { iso2:'SH', name:'Saint Helena' },
-  SYC: { iso2:'SC', name:'Seychelles' },
-  TZA: { iso2:'TZ', name:'Tanzania' },
-  UKR: { iso2:'UA', name:'Ukraine' },
-  URY: { iso2:'UY', name:'Uruguay' },
-  USA: { iso2:'US', name:'United States' },
-  ZAF: { iso2:'ZA', name:'South Africa' },
-}
-
-function portFlagDisplay(iso3) {
-  if (!iso3) return { emoji: '', name: iso3 }
-  const entry = PORT_FLAG[iso3.toUpperCase()]
-  if (!entry) return { emoji: '', name: iso3 }
-  const emoji = [...entry.iso2].map(c => String.fromCodePoint(c.charCodeAt(0) + 0x1F1A5)).join('')
-  return { emoji, name: entry.name }
-}
 
 function fmt(isoStr) {
   if (!isoStr) return '—'
@@ -102,11 +48,22 @@ function PortHistoryTable({ ports }) {
 }
 
 const RANGES = [
-  { months: 6,  label: '6 mo' },
-  { months: 12, label: '1 yr' },
-  { months: 24, label: '2 yr' },
-  { months: 60, label: 'All'  },
+  { months: 6,  label: 'Past 6 months' },
+  { months: 12, label: 'Past 1 year'   },
+  { months: 24, label: 'Past 2 years'  },
+  { months: 60, label: 'All'           },
 ]
+
+// Matches BACKFILL_START in database/backfill.py — no vessel's fishing/port
+// data goes back further than this, regardless of how far its own AIS
+// history (gfw_ais_from) extends, so the "All" label is clamped to it.
+const DATA_FLOOR_DATE = new Date('2022-01-01')
+
+function allSinceYear(vessel) {
+  const aisFrom = vessel.gfw_ais_from ? new Date(vessel.gfw_ais_from) : null
+  const effective = aisFrom && aisFrom > DATA_FLOOR_DATE ? aisFrom : DATA_FLOOR_DATE
+  return effective.getFullYear()
+}
 
 export default function VesselDetail({ vessel, onBack }) {
   const [months, setMonths] = useState(12)
@@ -128,7 +85,7 @@ export default function VesselDetail({ vessel, onBack }) {
     <div className="vessel-detail">
       <div className="detail-header">
         <button className="detail-back" onClick={onBack}>← Fleet</button>
-        <span className="detail-section-label">Vessel Details</span>
+        <span className="detail-section-label">Fishing Vessel Intelligence</span>
 
         <div className="detail-identity">
           <span className="detail-flag">{flag}</span>
@@ -137,9 +94,15 @@ export default function VesselDetail({ vessel, onBack }) {
         </div>
 
         <div className="detail-kpis">
-          <span title="Fishing events">⚓ {Number(vessel.fishing_event_count).toLocaleString()}</span>
-          <span title="Encounters">🤝 {vessel.encounter_count}</span>
-          <span title="AIS gaps">📡 {vessel.ais_gap_count}</span>
+          <span className="kpi-item" data-tooltip="Times this vessel was detected actively fishing, based on its speed and movement pattern.">
+            🎣 {Number(vessel.fishing_event_count).toLocaleString()}
+          </span>
+          <span className="kpi-item" data-tooltip="Times this vessel met another vessel at sea — often used to transfer catch without visiting port.">
+            🫱🏻‍🫲🏼 {vessel.encounter_count}
+          </span>
+          <span className="kpi-item" data-tooltip="Times this vessel's tracking signal went dark for an extended stretch — a possible sign of hidden activity.">
+            📡 {vessel.ais_gap_count}
+          </span>
           {vessel.eleginoides_authorized && <span className="species-pill">D. eleginoides</span>}
           {vessel.mawsoni_authorized     && <span className="species-pill">D. mawsoni</span>}
         </div>
@@ -151,7 +114,7 @@ export default function VesselDetail({ vessel, onBack }) {
               className={`range-btn ${months === r.months ? 'range-btn--active' : ''}`}
               onClick={() => setMonths(r.months)}
             >
-              {r.label}
+              {r.months === 60 ? `All since ${allSinceYear(vessel)}` : r.label}
             </button>
           ))}
         </div>
@@ -165,6 +128,7 @@ export default function VesselDetail({ vessel, onBack }) {
             fishingEvents={data?.fishing_events}
             portVisits={data?.port_visits}
             aisGaps={data?.ais_gaps}
+            encounters={data?.encounters}
           />
           <div className="port-section">
             <div className="port-section-title">Port Landing History</div>

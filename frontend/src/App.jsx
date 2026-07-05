@@ -22,11 +22,22 @@ export default function App() {
   const [vessels, setVessels]               = useState([])
   const [selectedVessel, setSelectedVessel] = useState(null)
   const [detailMode, setDetailMode]         = useState(false)
-  const [activeTab, setActiveTab]           = useState('fishing')
   const [activeView, setActiveView]         = useState('tracker')
   const [includedIds, setIncludedIds]       = useState(new Set())
-  const [statsExpanded, setStatsExpanded]   = useState(true)
+  const [statsExpanded, setStatsExpanded]   = useState(false)
+  const [selectedEvent, setSelectedEvent]   = useState(null)
+  const [days, setDays]                     = useState(180)
+  const [customRange, setCustomRange]       = useState(null)
   const hydrated = useRef(false)
+
+  // A day-preset and a custom date range are mutually exclusive.
+  const handleDaysChange = (d) => {
+    setCustomRange(null)
+    setDays(d)
+  }
+  const handleCustomRangeChange = (range) => {
+    setCustomRange(range)
+  }
 
   useEffect(() => {
     fetch('/api/summary').then(r => r.json()).then(setSummary)
@@ -70,6 +81,7 @@ export default function App() {
     setSelectedVessel(vessel)
     setDetailMode(true)
     setActiveView('fleet')
+    setSelectedEvent(null)
   }
 
   const handleSelectVesselId = (vesselId) => {
@@ -84,6 +96,7 @@ export default function App() {
 
   const handleViewChange = (view) => {
     setActiveView(view)
+    setSelectedEvent(null)
     if (view !== 'fleet') {
       setSelectedVessel(null)
       setDetailMode(false)
@@ -161,7 +174,7 @@ export default function App() {
         )}
         {activeView === 'supply' && (
           <div className="main-panel">
-            <SupplyIntelligence includedIds={includedIds} />
+            <SupplyIntelligence includedIds={includedIds} vessels={vessels} />
           </div>
         )}
         {activeView === 'fleet' && (
@@ -173,14 +186,22 @@ export default function App() {
                 <EventsPanel
                   selectedVessel={selectedVessel}
                   includedIds={includedIds}
-                  activeTab={activeTab}
-                  onTabChange={setActiveTab}
                   onSelectVesselId={handleSelectVesselId}
+                  selectedEvent={selectedEvent}
+                  onSelectEvent={setSelectedEvent}
+                  days={days}
+                  customRange={customRange}
                 />
                 <FleetMap
                   selectedVessel={selectedVessel}
                   includedIds={includedIds}
                   onSelectVesselId={handleSelectVesselId}
+                  selectedEvent={selectedEvent}
+                  days={days}
+                  onDaysChange={handleDaysChange}
+                  customRange={customRange}
+                  onCustomRangeChange={handleCustomRangeChange}
+                  earliestDate={summary?.first_event_date}
                 />
               </div>
             )}

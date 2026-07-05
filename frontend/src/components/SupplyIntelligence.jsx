@@ -5,6 +5,7 @@ import {
   XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, ReferenceLine,
 } from 'recharts'
+import { flagFor } from '../flags'
 import './SupplyIntelligence.css'
 
 const MONTH_LABELS = ['Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov']
@@ -101,6 +102,26 @@ function CustomTooltip({ active, payload, label, granularity, currentSeason }) {
   )
 }
 
+function VesselListPanel({ vessels }) {
+  const sorted = [...vessels].sort((a, b) => a.vessel_name.localeCompare(b.vessel_name))
+  return (
+    <div className="si-vessel-panel">
+      <div className="si-vessel-panel-header">
+        Tracked Vessels
+        <span className="si-vessel-panel-count">{sorted.length}</span>
+      </div>
+      <div className="si-vessel-panel-list">
+        {sorted.map(v => (
+          <div key={v.id} className="si-vessel-item">
+            <span className="si-vessel-flag">{flagFor(v.flag)}</span>
+            <span className="si-vessel-name">{v.vessel_name}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 const sharedXAxis = (formatter, weekly) => ({
   dataKey: 'bucket',
   tickFormatter: formatter,
@@ -118,7 +139,7 @@ const sharedYAxis = (formatter) => ({
   width: 44,
 })
 
-export default function SupplyIntelligence({ includedIds }) {
+export default function SupplyIntelligence({ includedIds, vessels }) {
   const [species, setSpecies]           = useState('all')
   const [granularity, setGranularity]   = useState('monthly')
   const [rawData, setRawData]           = useState(null)
@@ -126,6 +147,7 @@ export default function SupplyIntelligence({ includedIds }) {
   const [hiddenSeasons, setHiddenSeasons] = useState(new Set())
 
   const noVesselsTracked = includedIds && includedIds.size === 0
+  const trackedVessels   = vessels ? vessels.filter(v => includedIds?.has(v.id)) : []
 
   const toggleSeason = (year) => {
     setHiddenSeasons(prev => {
@@ -215,10 +237,12 @@ export default function SupplyIntelligence({ includedIds }) {
 
       {noVesselsTracked ? (
         <div className="si-empty-state">No vessels tracked — head to <strong>Fishing Vessel Tracking</strong> to select vessels.</div>
-      ) : loading ? (
-        <div className="si-loading">Loading…</div>
       ) : (
-        <div className="si-charts">
+        <div className="si-body">
+          {loading ? (
+            <div className="si-loading">Loading…</div>
+          ) : (
+          <div className="si-charts">
 
           {/* ── Top: periodic bar chart ── */}
           <div className="si-chart-section">
@@ -282,6 +306,9 @@ export default function SupplyIntelligence({ includedIds }) {
             </div>
           </div>
 
+          </div>
+          )}
+          <VesselListPanel vessels={trackedVessels} />
         </div>
       )}
     </div>

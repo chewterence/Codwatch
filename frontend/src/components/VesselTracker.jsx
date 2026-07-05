@@ -177,8 +177,8 @@ export default function VesselTracker({ vessels, includedIds, onToggleInclude, o
                 <th>Vessel</th>
                 <th>Country</th>
                 <th>Aliases</th>
-                <th className="tracker-cell-num">⚓ Fishing Events</th>
-                <th className="tracker-cell-num">🤝 Encounters</th>
+                <th className="tracker-cell-num">🎣 Fishing Events</th>
+                <th className="tracker-cell-num">🫱🏻‍🫲🏼 Encounters</th>
                 <th className="tracker-cell-num">📡 AIS Gaps</th>
                 <th className="tracker-cell-date">Last Fishing Event</th>
               </tr>
