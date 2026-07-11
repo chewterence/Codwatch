@@ -135,7 +135,7 @@ function MapResizeSync() {
   return null
 }
 
-export default function FleetMap({ selectedVessel, includedIds, onSelectVesselId, selectedEvent, days, onDaysChange, customRange, onCustomRangeChange, earliestDate }) {
+export default function FleetMap({ selectedVessel, includedIds, onSelectVesselId, selectedEvent, days, onDaysChange, customRange, onCustomRangeChange, earliestDate, onGoToTracker }) {
   const [events, setEvents] = useState([])
   const [carrierEncounters, setCarrierEncounters] = useState([])
   const [offloads, setOffloads] = useState([])
@@ -315,7 +315,7 @@ export default function FleetMap({ selectedVessel, includedIds, onSelectVesselId
       {loading && <div className="map-loading">Loading events…</div>}
       {noVesselsTracked && (
         <div className="map-empty-state">
-          No vessels tracked — head to <strong>Fishing Vessel Tracking</strong> to select vessels.
+          No vessels tracked — head to <button className="empty-state-link" onClick={onGoToTracker}>Fishing Vessel Tracking</button> to select vessels.
         </div>
       )}
       {selectedEventHasNoLocation && (

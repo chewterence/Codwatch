@@ -3,7 +3,7 @@ import VesselTracker from './components/VesselTracker'
 import FleetMap from './components/FleetMap'
 import EventsPanel from './components/EventsPanel'
 import VesselDetail from './components/VesselDetail'
-import SupplyIntelligence from './components/SupplyIntelligence'
+import SeasonOutlook from './components/SeasonOutlook'
 import './App.css'
 
 const TRACKED_IDS_KEY = 'codwatch.trackedVesselIds'
@@ -130,7 +130,7 @@ export default function App() {
             className={`nav-tab ${activeView === 'supply' ? 'nav-tab--active' : ''}`}
             onClick={() => handleViewChange('supply')}
           >
-            Supply Intelligence
+            Season Outlook
           </button>
         </nav>
 
@@ -174,7 +174,7 @@ export default function App() {
         )}
         {activeView === 'supply' && (
           <div className="main-panel">
-            <SupplyIntelligence includedIds={includedIds} vessels={vessels} />
+            <SeasonOutlook includedIds={includedIds} vessels={vessels} onGoToTracker={() => handleViewChange('tracker')} onSelectVessel={handleVesselSelect} />
           </div>
         )}
         {activeView === 'fleet' && (
@@ -191,6 +191,7 @@ export default function App() {
                   onSelectEvent={setSelectedEvent}
                   days={days}
                   customRange={customRange}
+                  onGoToTracker={() => handleViewChange('tracker')}
                 />
                 <FleetMap
                   selectedVessel={selectedVessel}
@@ -202,6 +203,7 @@ export default function App() {
                   customRange={customRange}
                   onCustomRangeChange={handleCustomRangeChange}
                   earliestDate={summary?.first_event_date}
+                  onGoToTracker={() => handleViewChange('tracker')}
                 />
               </div>
             )}

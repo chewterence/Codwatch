@@ -173,8 +173,17 @@
   color: #cbd5e1;
 }
 
+.si-vessel-item--clickable {
+  cursor: pointer;
+}
+
 .si-vessel-item:hover {
   background: #171933;
+}
+
+.si-vessel-item--clickable:hover .si-vessel-name {
+  color: #93c5fd;
+  text-decoration: underline;
 }
 
 .si-vessel-flag {
@@ -260,8 +269,18 @@
   text-align: center;
 }
 
-.si-empty-state strong {
+.si-empty-state .empty-state-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-weight: 600;
   color: #93c5fd;
+  cursor: pointer;
+}
+
+.si-empty-state .empty-state-link:hover {
+  text-decoration: underline;
 }
 
 /* ── Tooltip ── */

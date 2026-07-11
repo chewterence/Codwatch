@@ -48,6 +48,7 @@ function PortHistoryTable({ ports }) {
 }
 
 const RANGES = [
+  { months: 1,  label: 'Past 1 month'  },
   { months: 6,  label: 'Past 6 months' },
   { months: 12, label: 'Past 1 year'   },
   { months: 24, label: 'Past 2 years'  },
@@ -72,11 +73,17 @@ export default function VesselDetail({ vessel, onBack }) {
 
   useEffect(() => {
     if (!vessel) return
+    let cancelled = false
     setLoading(true)
     setData(null)
     fetch(`/api/vessels/${vessel.id}/timeline?months=${months}`)
       .then(r => r.json())
-      .then(d => { setData(d); setLoading(false) })
+      .then(d => {
+        // Guards against a slower, superseded request (e.g. switching range
+        // buttons quickly) resolving after a newer one and clobbering it.
+        if (!cancelled) { setData(d); setLoading(false) }
+      })
+    return () => { cancelled = true }
   }, [vessel?.id, months])
 
   const flag = flagFor(vessel.flag)
@@ -84,39 +91,64 @@ export default function VesselDetail({ vessel, onBack }) {
   return (
     <div className="vessel-detail">
       <div className="detail-header">
-        <button className="detail-back" onClick={onBack}>← Fleet</button>
-        <span className="detail-section-label">Fishing Vessel Intelligence</span>
-
-        <div className="detail-identity">
-          <span className="detail-flag">{flag}</span>
-          <span className="detail-name">{vessel.vessel_name}</span>
-          <span className="detail-country">{vessel.flag}</span>
+        <div className="detail-toprow">
+          <button className="detail-back" onClick={onBack}>← Fleet</button>
+          <span className="detail-section-label">Fishing Vessel Intelligence</span>
+          <div className="detail-range">
+            {RANGES.map(r => (
+              <button
+                key={r.months}
+                className={`range-btn ${months === r.months ? 'range-btn--active' : ''}`}
+                onClick={() => setMonths(r.months)}
+              >
+                {r.months === 60 ? `All since ${allSinceYear(vessel)}` : r.label}
+              </button>
+            ))}
+          </div>
         </div>
 
-        <div className="detail-kpis">
-          <span className="kpi-item" data-tooltip="Times this vessel was detected actively fishing, based on its speed and movement pattern.">
-            🎣 {Number(vessel.fishing_event_count).toLocaleString()}
-          </span>
-          <span className="kpi-item" data-tooltip="Times this vessel met another vessel at sea — often used to transfer catch without visiting port.">
-            🫱🏻‍🫲🏼 {vessel.encounter_count}
-          </span>
-          <span className="kpi-item" data-tooltip="Times this vessel's tracking signal went dark for an extended stretch — a possible sign of hidden activity.">
-            📡 {vessel.ais_gap_count}
-          </span>
-          {vessel.eleginoides_authorized && <span className="species-pill">D. eleginoides</span>}
-          {vessel.mawsoni_authorized     && <span className="species-pill">D. mawsoni</span>}
+        {/* The obvious header: who the vessel is, where it's from, what it's
+            doing, and what it's authorized to catch. Everything else about
+            it (event counts) is secondary detail below. */}
+        <div className="detail-mainrow">
+          <div className="detail-identity">
+            <span className="detail-flag">{flag}</span>
+            <div className="detail-identity-text">
+              <span className="detail-name">{vessel.vessel_name}</span>
+              <span className="detail-country">{vessel.flag}</span>
+            </div>
+          </div>
+
+          {vessel.last_activity_type && (
+            <div className="detail-status">
+              <span className={`status-pill status-pill--${vessel.last_activity_type}`}>
+                {vessel.last_activity_type === 'fishing'
+                  ? '🎣 Fishing'
+                  : `⚓ In port${vessel.last_port_name ? ` · ${vessel.last_port_name}` : ''}`}
+              </span>
+              <span className="status-lasttracked">Last tracked {fmt(vessel.last_activity_time)}</span>
+            </div>
+          )}
+
+          <div className="detail-species">
+            {vessel.eleginoides_authorized && <span className="species-pill">D. eleginoides</span>}
+            {vessel.mawsoni_authorized     && <span className="species-pill">D. mawsoni</span>}
+          </div>
         </div>
 
-        <div className="detail-range">
-          {RANGES.map(r => (
-            <button
-              key={r.months}
-              className={`range-btn ${months === r.months ? 'range-btn--active' : ''}`}
-              onClick={() => setMonths(r.months)}
-            >
-              {r.months === 60 ? `All since ${allSinceYear(vessel)}` : r.label}
-            </button>
-          ))}
+        <div className="detail-substats">
+          <span className="substat kpi-item" data-tooltip="Times this vessel was detected actively fishing, based on its speed and movement pattern.">
+            <span className="substat-value">🎣 {Number(vessel.fishing_event_count).toLocaleString()}</span>
+            <span className="substat-label">Fishing events</span>
+          </span>
+          <span className="substat kpi-item" data-tooltip="Times this vessel met another vessel at sea — often used to transfer catch without visiting port.">
+            <span className="substat-value">🤝 {vessel.encounter_count}</span>
+            <span className="substat-label">Encounters</span>
+          </span>
+          <span className="substat kpi-item" data-tooltip="Times this vessel's tracking signal went dark for an extended stretch — a possible sign of hidden activity.">
+            <span className="substat-value">📡 {vessel.ais_gap_count}</span>
+            <span className="substat-label">AIS gaps</span>
+          </span>
         </div>
       </div>
 

@@ -6,7 +6,7 @@ import {
   Tooltip, ResponsiveContainer, ReferenceLine,
 } from 'recharts'
 import { flagFor } from '../flags'
-import './SupplyIntelligence.css'
+import './SeasonOutlook.css'
 
 const MONTH_LABELS = ['Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov']
 
@@ -102,7 +102,7 @@ function CustomTooltip({ active, payload, label, granularity, currentSeason }) {
   )
 }
 
-function VesselListPanel({ vessels }) {
+function VesselListPanel({ vessels, onSelectVessel }) {
   const sorted = [...vessels].sort((a, b) => a.vessel_name.localeCompare(b.vessel_name))
   return (
     <div className="si-vessel-panel">
@@ -112,7 +112,11 @@ function VesselListPanel({ vessels }) {
       </div>
       <div className="si-vessel-panel-list">
         {sorted.map(v => (
-          <div key={v.id} className="si-vessel-item">
+          <div
+            key={v.id}
+            className="si-vessel-item si-vessel-item--clickable"
+            onClick={() => onSelectVessel?.(v)}
+          >
             <span className="si-vessel-flag">{flagFor(v.flag)}</span>
             <span className="si-vessel-name">{v.vessel_name}</span>
           </div>
@@ -139,7 +143,7 @@ const sharedYAxis = (formatter) => ({
   width: 44,
 })
 
-export default function SupplyIntelligence({ includedIds, vessels }) {
+export default function SeasonOutlook({ includedIds, vessels, onGoToTracker, onSelectVessel }) {
   const [species, setSpecies]           = useState('all')
   const [granularity, setGranularity]   = useState('monthly')
   const [rawData, setRawData]           = useState(null)
@@ -195,7 +199,7 @@ export default function SupplyIntelligence({ includedIds, vessels }) {
 
       {/* ── Header ── */}
       <div className="si-header">
-        <span className="si-title">Supply Intelligence</span>
+        <span className="si-title">Season Outlook</span>
         <div className="si-controls">
           <div className="si-toggle-group">
             {['all', 'eleginoides', 'mawsoni'].map(s => (
@@ -236,7 +240,7 @@ export default function SupplyIntelligence({ includedIds, vessels }) {
       )}
 
       {noVesselsTracked ? (
-        <div className="si-empty-state">No vessels tracked — head to <strong>Fishing Vessel Tracking</strong> to select vessels.</div>
+        <div className="si-empty-state">No vessels tracked — head to <button className="empty-state-link" onClick={onGoToTracker}>Fishing Vessel Tracking</button> to select vessels.</div>
       ) : (
         <div className="si-body">
           {loading ? (
@@ -308,7 +312,7 @@ export default function SupplyIntelligence({ includedIds, vessels }) {
 
           </div>
           )}
-          <VesselListPanel vessels={trackedVessels} />
+          <VesselListPanel vessels={trackedVessels} onSelectVessel={onSelectVessel} />
         </div>
       )}
     </div>

@@ -10,13 +10,25 @@
 
 .detail-header {
   display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 0 16px;
-  height: 52px;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px 16px;
   background: #0d0f1a;
   border-bottom: 1px solid #1e2240;
   flex-shrink: 0;
+}
+
+.detail-toprow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.detail-mainrow {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
 }
 
 .detail-back {
@@ -50,35 +62,98 @@
 .detail-identity {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   flex-shrink: 0;
 }
 
 .detail-flag {
-  font-size: 22px;
+  font-size: 30px;
   line-height: 1;
 }
 
+.detail-identity-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
 .detail-name {
-  font-size: 15px;
+  font-size: 19px;
   font-weight: 700;
   color: #e2e8f0;
   white-space: nowrap;
 }
 
 .detail-country {
+  font-size: 12px;
+  color: #64748b;
+  white-space: nowrap;
+}
+
+.detail-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.status-pill {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 12px;
+  white-space: nowrap;
+}
+
+.status-pill--fishing {
+  background: #0f1f3d;
+  color: #93c5fd;
+  border: 1px solid #1d4ed8;
+}
+
+.status-pill--port {
+  background: #3a1c05;
+  color: #fb923c;
+  border: 1px solid #c2410c;
+}
+
+.status-lasttracked {
   font-size: 11px;
   color: #4b5563;
   white-space: nowrap;
 }
 
-.detail-kpis {
+.detail-species {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.detail-substats {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 22px;
+}
+
+.substat {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  position: relative;
+}
+
+.substat-value {
   font-size: 12px;
-  color: #64748b;
-  flex-shrink: 0;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+.substat-label {
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #374151;
 }
 
 .kpi-item {

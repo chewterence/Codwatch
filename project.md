@@ -59,7 +59,7 @@ Codwatch/
             ├── EventsPanel.jsx/.css     # Unified chronological event feed (left of the map)
             ├── VesselDetail.jsx/.css    # Single-vessel view: voyage timeline + port history
             ├── VoyageTimeline.jsx/.css  # Horizontal [FISHING]→[TRANSIT]→[PORT] strip
-            └── SupplyIntelligence.jsx/.css  # Season-over-season fishing-hours charts
+            └── SeasonOutlook.jsx/.css   # Season-over-season fishing-hours charts
 ```
 
 ---
@@ -137,7 +137,7 @@ a static `PORT_COORDS` dict (~80 ports, hand-compiled) keyed by GFW's `port_id`
 (`chn-chn-2193`, `isl-isl-57`, etc.) have no identifiable real-world location and are deliberately
 left unmapped rather than guessed — those port visits render the "no location recorded" toast.
 
-### 3. Supply Intelligence (`SupplyIntelligence.jsx`)
+### 3. Season Outlook (`SeasonOutlook.jsx`)
 
 Season-over-season fishing-hours charts (monthly/weekly bar + cumulative line), scoped to
 `includedIds` — deliberately, per the owner's call: this answers "how active are the vessels I'm

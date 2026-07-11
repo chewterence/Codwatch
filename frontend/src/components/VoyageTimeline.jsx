@@ -9,6 +9,15 @@ function daysBetween(start, end) {
   return Math.max(0, (new Date(end) - new Date(start)) / 86400000)
 }
 
+// "0d" reads as if nothing happened — a 2-hour encounter or fishing event
+// rounds down to zero days. Fall back to hours whenever the day count would
+// round to zero, so short segments still show a meaningful duration.
+function fmtDurationLabel(start, end) {
+  const hours = Math.max(0, (new Date(end) - new Date(start)) / 3600000)
+  const days  = Math.round(hours / 24)
+  return days > 0 ? `${days}d` : `${Math.round(hours)}h`
+}
+
 function fmtShort(isoStr) {
   if (!isoStr) return ''
   return new Date(isoStr).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: '2-digit' })
@@ -39,21 +48,129 @@ function fmtRange(startIso, endIso) {
   return `${fmtShort(startIso)} → ${fmtShort(endIso)}`
 }
 
-// Attaches any encounters (vessel-to-vessel meetings — the transshipment/
-// offload signal, same convention as EventsPanel's OFFLOAD_KINDS) whose
-// start_time falls within a segment's [start, end] range.
-function attachEncounters(segments, encounters) {
+const ENCOUNTER_CLUSTER_HOURS = 24
+
+// Nearby encounters (e.g. two meetings with the same buddy boat a few hours
+// apart) collapse into one visual cluster instead of fragmenting the
+// timeline into a run of near-identical back-to-back encounter blocks.
+// Encounters further apart than the threshold become separate clusters —
+// i.e. separate blocks in the rendered sequence.
+function clusterEncounters(encounters) {
+  const sorted = [...encounters].sort((a, b) => new Date(a.start_time) - new Date(b.start_time))
+  const clusters = []
+  for (const enc of sorted) {
+    const last = clusters[clusters.length - 1]
+    if (last) {
+      const gapHours = (new Date(enc.start_time) - new Date(last.end)) / 3600000
+      if (gapHours <= ENCOUNTER_CLUSTER_HOURS) {
+        last.items.push(enc)
+        const encEnd = enc.end_time || enc.start_time
+        if (encEnd > last.end) last.end = encEnd
+        continue
+      }
+    }
+    clusters.push({ start: enc.start_time, end: enc.end_time || enc.start_time, items: [enc] })
+  }
+  return clusters
+}
+
+// Splits a merged fishing period into fishing-sub-blocks interleaved with
+// encounter blocks at the right point in time — the underlying "trip"
+// grouping (what counts as one continuous period) is untouched; this only
+// changes how that one period is chopped up for rendering. Uses the
+// period's own constituent events (attached in buildSegments) so each
+// sub-block gets accurate event_count/total_hours/fao_areas, not a guess.
+function splitFishingByEncounters(seg, clusters) {
+  if (!clusters.length) return [seg]
+
+  const events     = seg.events || []
+  const boundaries = clusters.map(c => new Date(c.start))
+  const buckets     = Array.from({ length: boundaries.length + 1 }, () => [])
+
+  for (const e of events) {
+    const t = new Date(e.start_time)
+    let idx = 0
+    while (idx < boundaries.length && t >= boundaries[idx]) idx++
+    buckets[idx].push(e)
+  }
+
+  const result = []
+  for (let i = 0; i < buckets.length; i++) {
+    const bucket = buckets[i]
+    if (bucket.length) {
+      let start = bucket[0].start_time
+      let end   = bucket[0].end_time || bucket[0].start_time
+      const fao = []
+      let totalHours = 0
+      for (const e of bucket) {
+        const eEnd = e.end_time || e.start_time
+        if (e.start_time < start) start = e.start_time
+        if (eEnd > end) end = eEnd
+        totalHours += e.duration_hours || 0
+        ;(e.fao_areas || []).forEach(a => { if (!fao.includes(a)) fao.push(a) })
+      }
+      result.push({ type: 'fishing', start, end, fao_areas: fao, event_count: bucket.length, total_hours: totalHours })
+    }
+    if (i < clusters.length) {
+      result.push({ type: 'encounter', start: clusters[i].start, end: clusters[i].end, encounters: clusters[i].items })
+    }
+  }
+  return result
+}
+
+// Same idea as splitFishingByEncounters, but for a transit gap — there's no
+// underlying event list to redistribute, just a date range to slice at each
+// encounter cluster.
+function splitTransitByEncounters(seg, clusters) {
+  if (!clusters.length) return [seg]
+
+  const result = []
+  let cursor = seg.start
+  for (const cluster of clusters) {
+    const gapDays = daysBetween(cursor, cluster.start)
+    if (gapDays >= 1) {
+      result.push({ type: 'transit', start: cursor, end: cluster.start, days: Math.round(gapDays) })
+    }
+    result.push({ type: 'encounter', start: cluster.start, end: cluster.end, encounters: cluster.items })
+    cursor = cluster.end
+  }
+  const remDays = daysBetween(cursor, seg.end)
+  if (remDays >= 1) {
+    result.push({ type: 'transit', start: cursor, end: seg.end, days: Math.round(remDays) })
+  }
+  return result
+}
+
+// Walks the built segment sequence and, for fishing/transit segments,
+// breaks out any overlapping encounters into their own blocks in the right
+// chronological spot. Ports and the isolated "latest" block stay atomic
+// (a port call is already a single instant; "latest" is always one event) —
+// they keep their encounters as an inline tag list instead.
+function applyEncounterSplits(segments, encounters) {
   if (!encounters?.length) return segments
-  return segments.map(seg => {
-    if (!seg.start || !seg.end) return seg
+
+  const result = []
+  for (const seg of segments) {
+    if (!seg.start || !seg.end) { result.push(seg); continue }
+
     const segStart = new Date(seg.start)
     const segEnd   = new Date(seg.end)
-    const matches  = encounters.filter(enc => {
+    const overlapping = encounters.filter(enc => {
       const t = new Date(enc.start_time)
       return t >= segStart && t <= segEnd
     })
-    return matches.length ? { ...seg, encounters: matches } : seg
-  })
+
+    if (!overlapping.length) { result.push(seg); continue }
+
+    if (seg.type === 'fishing') {
+      result.push(...splitFishingByEncounters(seg, clusterEncounters(overlapping)))
+    } else if (seg.type === 'transit') {
+      result.push(...splitTransitByEncounters(seg, clusterEncounters(overlapping)))
+    } else {
+      result.push({ ...seg, encounters: overlapping })
+    }
+  }
+  return result
 }
 
 function formatFaoAreas(areas) {
@@ -92,6 +209,7 @@ function buildSegments(fishingEvents, portVisits) {
         fao_areas: [...(e.fao_areas || [])],
         event_count: 1,
         total_hours: e.duration_hours || 0,
+        events: [e],
       })
     } else {
       const last = periods[periods.length - 1]
@@ -104,6 +222,7 @@ function buildSegments(fishingEvents, portVisits) {
         if (eEnd > last.end) last.end = eEnd
         last.event_count++
         last.total_hours += e.duration_hours || 0
+        last.events.push(e)
         ;(e.fao_areas || []).forEach(a => {
           if (!last.fao_areas.includes(a)) last.fao_areas.push(a)
         })
@@ -115,6 +234,7 @@ function buildSegments(fishingEvents, portVisits) {
           fao_areas: [...(e.fao_areas || [])],
           event_count: 1,
           total_hours: e.duration_hours || 0,
+          events: [e],
         })
       }
     }
@@ -212,16 +332,10 @@ const LATEST_MIN     = 160 // header row (icon + label + LATEST badge) needs mor
 
 const ENCOUNTER_MAX_LINES = 4
 
-// Encounters attached to a segment render as compact amber lines — same
-// color/meaning as the carrier markers on the fleet map and the
-// "Transshipment / port offload" legend in EventsPanel. Rendered inline
-// (wraps naturally) rather than as a hover tooltip so it stays visible
-// without depending on mouse position or clipping against the scroll track.
 // Repeat meetings with the same vessel (e.g. a long-running trawler pair)
-// collapse into one "×N" line instead of ballooning the card's height.
-function EncounterTag({ encounters }) {
-  if (!encounters?.length) return null
-
+// collapse into one "×N" line instead of ballooning the card's height, and
+// the list is capped so an unusually social segment doesn't run on forever.
+function collapseEncounterNames(encounters) {
   const counts = new Map()
   for (const e of encounters) {
     const name = e.encountered_vessel_name || 'Unidentified vessel'
@@ -230,12 +344,24 @@ function EncounterTag({ encounters }) {
   const entries  = [...counts.entries()]
   const shown    = entries.slice(0, ENCOUNTER_MAX_LINES)
   const overflow = entries.length - shown.length
+  return { shown, overflow }
+}
+
+// Encounters attached to a port/latest block (which stay atomic — see
+// applyEncounterSplits) render as compact amber lines — same color/meaning
+// as the carrier markers on the fleet map and the "Transshipment / port
+// offload" legend in EventsPanel. Rendered inline (wraps naturally) rather
+// than as a hover tooltip so it stays visible without depending on mouse
+// position or clipping against the scroll track.
+function EncounterTag({ encounters }) {
+  if (!encounters?.length) return null
+  const { shown, overflow } = collapseEncounterNames(encounters)
 
   return (
     <div className="seg-encounter">
       {shown.map(([name, count]) => (
         <div key={name} className="seg-encounter-line">
-          🤝 {name}{count > 1 ? ` ×${count}` : ''}
+          🚢 {name}{count > 1 ? ` ×${count}` : ''}
         </div>
       ))}
       {overflow > 0 && (
@@ -256,7 +382,6 @@ function blockWidth(seg, dateText) {
 }
 
 function FishingBlock({ seg }) {
-  const days = Math.round(daysBetween(seg.start, seg.end))
   const area = formatFaoAreas(seg.fao_areas)
   const dateText = fmtRange(seg.start, seg.end)
   return (
@@ -266,7 +391,7 @@ function FishingBlock({ seg }) {
         <span className="seg-type-label">FISHING</span>
       </div>
       <div className="seg-dates">{dateText}</div>
-      <div className="seg-days">{days}d</div>
+      <div className="seg-days">{fmtDurationLabel(seg.start, seg.end)}</div>
       {area && <div className="seg-area">{area}</div>}
       <div className="seg-sub">{seg.event_count} events · {Math.round(seg.total_hours)}h</div>
       <EncounterTag encounters={seg.encounters} />
@@ -305,12 +430,43 @@ function PortBlock({ seg }) {
   )
 }
 
+// A vessel-to-vessel meeting broken out of its surrounding fishing/transit
+// period into its own block — see applyEncounterSplits. Lighter orange than
+// PORT so the two "catch leaves the vessel here" moments (offload at sea vs.
+// landed at port) read as related but distinct.
+function EncounterBlock({ seg }) {
+  const dateText = fmtRange(seg.start, seg.end)
+  const { shown, overflow } = collapseEncounterNames(seg.encounters || [])
+  return (
+    <div className="seg seg--encounter" style={{ width: blockWidth(seg, dateText) }}>
+      <div className="seg-header">
+        <span className="seg-icon">🚢</span>
+        <span className="seg-type-label seg-type-label--encounter">ENCOUNTER</span>
+      </div>
+      <div className="seg-dates">{dateText}</div>
+      <div className="seg-days seg-days--encounter">{fmtDurationLabel(seg.start, seg.end)}</div>
+      <div className="seg-encounter">
+        {shown.map(([name, count]) => (
+          <div key={name} className="seg-encounter-line">
+            🚢 {name}{count > 1 ? ` ×${count}` : ''}
+          </div>
+        ))}
+        {overflow > 0 && (
+          <div className="seg-encounter-line seg-encounter-more">
+            +{overflow} more vessel{overflow > 1 ? 's' : ''}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 // The single most recent event in the whole timeline — same content as a
 // regular fishing/port block, but purple, so it reads as "this is the latest
 // known contact" rather than just another trip.
 function LatestBlock({ seg }) {
   const isPort = seg.type === 'latest-port'
-  const days = isPort ? seg.days : Math.round(daysBetween(seg.start, seg.end))
+  const durationLabel = isPort ? `${seg.days}d` : fmtDurationLabel(seg.start, seg.end)
   const area = !isPort ? formatFaoAreas(seg.fao_areas) : null
   const dateText = isPort ? fmtShort(seg.start) : fmtRange(seg.start, seg.end)
   const width = Math.max(blockWidth(seg, dateText), LATEST_MIN)
@@ -322,7 +478,7 @@ function LatestBlock({ seg }) {
         <span className="seg-latest-badge">LATEST</span>
       </div>
       <div className="seg-dates">{dateText}</div>
-      <div className="seg-days seg-days--latest">{days}d</div>
+      <div className="seg-days seg-days--latest">{durationLabel}</div>
       {isPort ? (
         <>
           {seg.port_name && <div className="seg-area seg-area--latest">{seg.port_name}</div>}
@@ -342,20 +498,28 @@ function LatestBlock({ seg }) {
 }
 
 function Segment({ seg }) {
-  if (seg.type === 'fishing') return <FishingBlock seg={seg} />
-  if (seg.type === 'transit') return <TransitBlock seg={seg} />
-  if (seg.type === 'port')    return <PortBlock seg={seg} />
+  if (seg.type === 'fishing')   return <FishingBlock seg={seg} />
+  if (seg.type === 'transit')   return <TransitBlock seg={seg} />
+  if (seg.type === 'port')      return <PortBlock seg={seg} />
+  if (seg.type === 'encounter') return <EncounterBlock seg={seg} />
   if (seg.type === 'latest-fishing' || seg.type === 'latest-port') return <LatestBlock seg={seg} />
   return null
 }
 
 export default function VoyageTimeline({ fishingEvents, portVisits, encounters }) {
+  // Built once from the raw fishing/port data — this is the "trip" grouping
+  // (what counts as one continuous fishing period) and never changes based
+  // on encounters, so header stats (trips/days) are always computed from
+  // this, not from the encounter-split render list below.
   const rawSegments = useMemo(
     () => buildSegments(fishingEvents || [], portVisits || []),
     [fishingEvents, portVisits],
   )
+  // Render-only: breaks fishing/transit segments into sub-blocks around any
+  // encounters that fall within them (see applyEncounterSplits) — a purely
+  // visual finer breakdown of the same underlying trips.
   const segments = useMemo(
-    () => attachEncounters(rawSegments, encounters || []),
+    () => applyEncounterSplits(rawSegments, encounters || []),
     [rawSegments, encounters],
   )
 
@@ -363,9 +527,9 @@ export default function VoyageTimeline({ fishingEvents, portVisits, encounters }
     return <div className="timeline-empty">No fishing events recorded in this period.</div>
   }
 
-  const fishSegs    = segments.filter(s => s.type === 'fishing' || s.type === 'latest-fishing')
-  const transitSegs = segments.filter(s => s.type === 'transit')
-  const portSegs    = segments.filter(s => s.type === 'port' || s.type === 'latest-port')
+  const fishSegs    = rawSegments.filter(s => s.type === 'fishing' || s.type === 'latest-fishing')
+  const transitSegs = rawSegments.filter(s => s.type === 'transit')
+  const portSegs    = rawSegments.filter(s => s.type === 'port' || s.type === 'latest-port')
   const totalFishDays    = fishSegs.reduce((n, s) => n + daysBetween(s.start, s.end), 0)
   const totalTransitDays = transitSegs.reduce((n, s) => n + s.days, 0)
 

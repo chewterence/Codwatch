@@ -97,7 +97,7 @@ function TimelineRow({ row, isSelected, onSelectVesselId, onSelectEvent }) {
   )
 }
 
-export default function EventsPanel({ selectedVessel, includedIds, onSelectVesselId, selectedEvent, onSelectEvent, days, customRange }) {
+export default function EventsPanel({ selectedVessel, includedIds, onSelectVesselId, selectedEvent, onSelectEvent, days, customRange, onGoToTracker }) {
   const [data, setData] = useState({ fishing: [], encounters: [], ais_gaps: [], ports: [] })
 
   const noVesselsTracked = !selectedVessel && includedIds && includedIds.size === 0
@@ -163,7 +163,7 @@ export default function EventsPanel({ selectedVessel, includedIds, onSelectVesse
       </div>
       <div className="events-body">
         {noVesselsTracked ? (
-          <div className="empty-state">No vessels tracked — head to <strong>Fishing Vessel Tracking</strong> to select vessels.</div>
+          <div className="empty-state">No vessels tracked — head to <button className="empty-state-link" onClick={onGoToTracker}>Fishing Vessel Tracking</button> to select vessels.</div>
         ) : timeline.length === 0 ? (
           <div className="empty-state">No events found.</div>
         ) : (

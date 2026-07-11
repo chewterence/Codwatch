@@ -114,13 +114,23 @@ def get_vessels():
             v.eleginoides_authorized,
             v.mawsoni_authorized,
             COALESCE(fe.cnt, 0)      AS fishing_event_count,
-            fe.last_date             AS last_fishing_date,
+            fe.last_time::date       AS last_fishing_date,
             COALESCE(e.cnt, 0)       AS encounter_count,
             COALESCE(ag.cnt, 0)      AS ais_gap_count,
-            COALESCE(al.aliases, '[]'::json) AS aliases
+            COALESCE(al.aliases, '[]'::json) AS aliases,
+            GREATEST(fe.last_time, pv.last_time) AS last_activity_time,
+            CASE
+                WHEN fe.last_time IS NULL AND pv.last_time IS NULL THEN NULL
+                WHEN pv.last_time IS NULL THEN 'fishing'
+                WHEN fe.last_time IS NULL THEN 'port'
+                WHEN fe.last_time >= pv.last_time THEN 'fishing'
+                ELSE 'port'
+            END AS last_activity_type,
+            pv.port_name AS last_port_name,
+            pv.port_flag AS last_port_flag
         FROM vessels v
         LEFT JOIN (
-            SELECT vessel_id, COUNT(*) AS cnt, MAX(start_time)::date AS last_date
+            SELECT vessel_id, COUNT(*) AS cnt, MAX(start_time) AS last_time
             FROM fishing_events GROUP BY vessel_id
         ) fe ON fe.vessel_id = v.id
         LEFT JOIN (
@@ -138,6 +148,13 @@ def get_vessels():
             ) ORDER BY active_from) AS aliases
             FROM vessel_aliases GROUP BY vessel_id
         ) al ON al.vessel_id = v.id
+        LEFT JOIN LATERAL (
+            SELECT start_time AS last_time, port_name, port_flag
+            FROM port_visits
+            WHERE port_visits.vessel_id = v.id
+            ORDER BY start_time DESC
+            LIMIT 1
+        ) pv ON true
         ORDER BY fishing_event_count DESC, v.vessel_name
     """)
 
@@ -573,7 +590,7 @@ def get_vessel_timeline(
     }
 
 
-# ── Supply Intelligence ───────────────────────────────────────────────────────
+# ── Season Outlook ────────────────────────────────────────────────────────────
 
 @app.get("/api/supply/season-chart")
 def get_season_chart(
