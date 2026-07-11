@@ -243,14 +243,22 @@
   font-size: 13px;
 }
 
-/* ── Port history ── */
+/* ── Port history + map row ── */
+
+.detail-mapport-row {
+  display: flex;
+  flex-shrink: 0;
+  height: 300px;
+  border-bottom: 1px solid #1e2240;
+}
 
 .port-section {
-  flex: 1;
+  flex: 0 0 380px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   min-height: 0;
+  border-right: 1px solid #1e2240;
 }
 
 .port-section-title {

@@ -537,20 +537,6 @@ export default function VoyageTimeline({ fishingEvents, portVisits, encounters }
     <div className="voyage-timeline">
       <div className="timeline-topbar">
         <span className="timeline-label">Voyage Timeline</span>
-        <div className="timeline-summary">
-          <span className="tl-stat tl-stat--fish">
-            🎣 {fishSegs.length} trips · {Math.round(totalFishDays)}d fishing
-          </span>
-          <span className="tl-stat tl-stat--transit">
-            ⟳ {transitSegs.length} transits · {Math.round(totalTransitDays)}d
-          </span>
-          {portSegs.length > 0 && (
-            <span className="tl-stat tl-stat--port">⚓ {portSegs.length} ports</span>
-          )}
-          {encounters?.length > 0 && (
-            <span className="tl-stat tl-stat--encounter">🤝 {encounters.length} encounters</span>
-          )}
-        </div>
       </div>
       <div className="timeline-scroll">
         <div className="timeline-track">
@@ -561,6 +547,20 @@ export default function VoyageTimeline({ fishingEvents, portVisits, encounters }
             </div>
           ))}
         </div>
+      </div>
+      <div className="timeline-summary">
+        <span className="tl-stat tl-stat--fish">
+          🎣 {fishSegs.length} trips · {Math.round(totalFishDays)}d fishing
+        </span>
+        <span className="tl-stat tl-stat--transit">
+          ⟳ {transitSegs.length} transits · {Math.round(totalTransitDays)}d
+        </span>
+        {portSegs.length > 0 && (
+          <span className="tl-stat tl-stat--port">⚓ {portSegs.length} ports</span>
+        )}
+        {encounters?.length > 0 && (
+          <span className="tl-stat tl-stat--encounter">🤝 {encounters.length} encounters</span>
+        )}
       </div>
     </div>
   )

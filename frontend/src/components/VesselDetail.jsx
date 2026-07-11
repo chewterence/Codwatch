@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import VoyageTimeline from './VoyageTimeline'
+import VesselMap from './VesselMap'
 import { flagFor, portFlagDisplay } from '../flags'
 import './VesselDetail.css'
 
@@ -156,16 +157,19 @@ export default function VesselDetail({ vessel, onBack }) {
         <div className="detail-loading">Loading voyage data…</div>
       ) : (
         <>
+          <div className="detail-mapport-row">
+            <div className="port-section">
+              <div className="port-section-title">Port Landing History</div>
+              <PortHistoryTable ports={data?.port_visits || []} />
+            </div>
+            <VesselMap />
+          </div>
           <VoyageTimeline
             fishingEvents={data?.fishing_events}
             portVisits={data?.port_visits}
             aisGaps={data?.ais_gaps}
             encounters={data?.encounters}
           />
-          <div className="port-section">
-            <div className="port-section-title">Port Landing History</div>
-            <PortHistoryTable ports={data?.port_visits || []} />
-          </div>
         </>
       )}
     </div>
