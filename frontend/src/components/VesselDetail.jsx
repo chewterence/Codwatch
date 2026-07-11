@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import VoyageTimeline from './VoyageTimeline'
+import VoyageTimeline, { getLatestLocation } from './VoyageTimeline'
 import VesselMap from './VesselMap'
 import { flagFor, portFlagDisplay } from '../flags'
 import './VesselDetail.css'
@@ -71,18 +71,26 @@ export default function VesselDetail({ vessel, onBack }) {
   const [months, setMonths] = useState(12)
   const [data, setData]     = useState(null)
   const [loading, setLoading] = useState(true)
+  const [selectedLocation, setSelectedLocation] = useState(null)
 
   useEffect(() => {
     if (!vessel) return
     let cancelled = false
     setLoading(true)
     setData(null)
+    setSelectedLocation(null)
     fetch(`/api/vessels/${vessel.id}/timeline?months=${months}`)
       .then(r => r.json())
       .then(d => {
         // Guards against a slower, superseded request (e.g. switching range
         // buttons quickly) resolving after a newer one and clobbering it.
-        if (!cancelled) { setData(d); setLoading(false) }
+        if (!cancelled) {
+          setData(d)
+          setLoading(false)
+          // Starts the Vessel Activity Map on the vessel's most recent known
+          // position rather than a blank whole-world view.
+          setSelectedLocation(getLatestLocation(d.fishing_events, d.port_visits))
+        }
       })
     return () => { cancelled = true }
   }, [vessel?.id, months])
@@ -162,13 +170,14 @@ export default function VesselDetail({ vessel, onBack }) {
               <div className="port-section-title">Port Landing History</div>
               <PortHistoryTable ports={data?.port_visits || []} />
             </div>
-            <VesselMap />
+            <VesselMap location={selectedLocation} />
           </div>
           <VoyageTimeline
             fishingEvents={data?.fishing_events}
             portVisits={data?.port_visits}
             aisGaps={data?.ais_gaps}
             encounters={data?.encounters}
+            onSelectLocation={setSelectedLocation}
           />
         </>
       )}

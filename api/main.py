@@ -555,12 +555,19 @@ def get_vessel_timeline(
 
     ports = query("""
         SELECT event_id, start_time, end_time, duration_hours,
-               lat, lon, port_name, port_flag, confidence
+               lat, lon, port_name, port_id, port_flag, confidence
         FROM port_visits
         WHERE vessel_id = %s
           AND start_time >= NOW() - (%s || ' months')::interval
         ORDER BY start_time ASC
     """, [vessel_id, months])
+
+    # port_visits itself never got lat/lon from GFW's loitering-derived data —
+    # resolve from the same static port gazetteer used elsewhere (PORT_COORDS).
+    for p in ports:
+        coord = PORT_COORDS.get(p.get("port_id"))
+        p["port_lat"] = coord[0] if coord else None
+        p["port_lon"] = coord[1] if coord else None
 
     gaps = query("""
         SELECT event_id, start_time, end_time, gap_hours,

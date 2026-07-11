@@ -248,7 +248,7 @@
 .detail-mapport-row {
   display: flex;
   flex-shrink: 0;
-  height: 300px;
+  height: 560px;
   border-bottom: 1px solid #1e2240;
 }
 

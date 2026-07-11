@@ -80,6 +80,16 @@
   overflow: hidden;
 }
 
+.seg--clickable {
+  cursor: pointer;
+  transition: filter 0.1s, transform 0.1s;
+}
+
+.seg--clickable:hover {
+  filter: brightness(1.2);
+  transform: translateY(-1px);
+}
+
 .seg--fishing {
   background: #0f1f3d;
   border-color: #1d4ed8;

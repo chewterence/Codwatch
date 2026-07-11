@@ -109,10 +109,15 @@ function splitFishingByEncounters(seg, clusters) {
         totalHours += e.duration_hours || 0
         ;(e.fao_areas || []).forEach(a => { if (!fao.includes(a)) fao.push(a) })
       }
-      result.push({ type: 'fishing', start, end, fao_areas: fao, event_count: bucket.length, total_hours: totalHours })
+      result.push({
+        type: 'fishing', start, end, fao_areas: fao, event_count: bucket.length, total_hours: totalHours,
+        events: bucket,
+      })
     }
     if (i < clusters.length) {
-      result.push({ type: 'encounter', start: clusters[i].start, end: clusters[i].end, encounters: clusters[i].items })
+      result.push({
+        type: 'encounter', start: clusters[i].start, end: clusters[i].end, encounters: clusters[i].items,
+      })
     }
   }
   return result
@@ -131,7 +136,9 @@ function splitTransitByEncounters(seg, clusters) {
     if (gapDays >= 1) {
       result.push({ type: 'transit', start: cursor, end: cluster.start, days: Math.round(gapDays) })
     }
-    result.push({ type: 'encounter', start: cluster.start, end: cluster.end, encounters: cluster.items })
+    result.push({
+      type: 'encounter', start: cluster.start, end: cluster.end, encounters: cluster.items,
+    })
     cursor = cluster.end
   }
   const remDays = daysBetween(cursor, seg.end)
@@ -265,6 +272,8 @@ function buildSegments(fishingEvents, portVisits) {
             days: Math.max(1, Math.round(daysBetween(port.start_time, port.end_time || port.start_time))),
             port_name: port.port_name,
             port_flag: port.port_flag,
+            lat: port.port_lat,
+            lon: port.port_lon,
           })
           cursor = port.end_time || port.start_time
         }
@@ -298,6 +307,7 @@ function buildSegments(fishingEvents, portVisits) {
       fao_areas: [...(e.fao_areas || [])],
       event_count: 1,
       total_hours: e.duration_hours || 0,
+      events: [e],
     })
   } else {
     const p = latest.ref
@@ -308,6 +318,8 @@ function buildSegments(fishingEvents, portVisits) {
       days: Math.max(1, Math.round(daysBetween(p.start_time, p.end_time || p.start_time))),
       port_name: p.port_name,
       port_flag: p.port_flag,
+      lat: p.port_lat,
+      lon: p.port_lon,
     })
   }
 
@@ -373,6 +385,73 @@ function EncounterTag({ encounters }) {
   )
 }
 
+function toPoints(list) {
+  return (list || [])
+    .filter(item => item.lat != null && item.lon != null)
+    .map(item => ({ lat: item.lat, lon: item.lon }))
+}
+
+// Matches the accent colors each segment type already uses for its
+// seg-type-label in VoyageTimeline.css, so the map markers/popup read as the
+// same "type" as the card that was clicked.
+const LOCATION_COLORS = {
+  fishing:   '#2563eb',
+  port:      '#fbbf24',
+  encounter: '#fb923c',
+  latest:    '#a78bfa',
+}
+
+// Resolves the points to show on the Vessel Activity Map for a clicked
+// segment, plus what to label them with. A merged fishing period or an
+// encounter cluster can span many underlying events scattered across a wide
+// area — rather than collapsing that to one arbitrary point, every
+// constituent event's fix is plotted so the map reads as the actual cluster
+// it represents. Transit segments have no fix at all (they're the gap
+// *between* known positions) and port visits from GFW's loitering data have
+// no coordinates unless resolved via the static port gazetteer (see
+// PORT_COORDS server-side) — either way, a segment with no resolvable point
+// just isn't clickable.
+function segmentLocation(seg) {
+  if (seg.type === 'fishing' || seg.type === 'latest-fishing') {
+    const points = toPoints(seg.events)
+    if (!points.length) return null
+    const isLatest = seg.type === 'latest-fishing'
+    const kind = isLatest ? 'latest' : 'fishing'
+    return { points, activity: isLatest ? 'Currently fishing' : 'Fishing', color: LOCATION_COLORS[kind], kind }
+  }
+  if (seg.type === 'port' || seg.type === 'latest-port') {
+    if (seg.lat == null || seg.lon == null) return null
+    const isLatest = seg.type === 'latest-port'
+    const kind = isLatest ? 'latest' : 'port'
+    const label = isLatest ? 'Currently in port' : 'In port'
+    return { points: [{ lat: seg.lat, lon: seg.lon }], activity: `${label}${seg.port_name ? ` · ${seg.port_name}` : ''}`, color: LOCATION_COLORS[kind], kind }
+  }
+  if (seg.type === 'encounter') {
+    const points = toPoints(seg.encounters)
+    if (!points.length) return null
+    const name = seg.encounters?.[0]?.encountered_vessel_name
+    return { points, activity: `Encounter${name ? ` · ${name}` : ''}`, color: LOCATION_COLORS.encounter, kind: 'encounter' }
+  }
+  return null
+}
+
+// What the Vessel Activity Map should show before the user has clicked
+// anything — the vessel's most recent known position, same point the
+// isolated "LATEST" card at the end of the timeline represents, so the map
+// and the timeline agree on "here's where the vessel is right now" from the
+// moment the page loads.
+export function getLatestLocation(fishingEvents, portVisits) {
+  const segments = buildSegments(fishingEvents || [], portVisits || [])
+  if (!segments.length) return null
+
+  const seg = segments[segments.length - 1]
+  const loc = segmentLocation(seg)
+  if (!loc) return null
+
+  const date = seg.type === 'latest-port' ? fmtShort(seg.start) : fmtRange(seg.start, seg.end)
+  return { ...loc, date }
+}
+
 function blockWidth(seg, dateText) {
   const days = seg.days ?? daysBetween(seg.start, seg.end)
   const MIN = seg.type === 'transit' ? 72 : 110
@@ -381,11 +460,16 @@ function blockWidth(seg, dateText) {
   return Math.max(durationWidth, textWidth)
 }
 
-function FishingBlock({ seg }) {
+function FishingBlock({ seg, onSelectLocation }) {
   const area = formatFaoAreas(seg.fao_areas)
   const dateText = fmtRange(seg.start, seg.end)
+  const loc = segmentLocation(seg)
   return (
-    <div className="seg seg--fishing" style={{ width: blockWidth(seg, dateText) }}>
+    <div
+      className={`seg seg--fishing${loc ? ' seg--clickable' : ''}`}
+      style={{ width: blockWidth(seg, dateText) }}
+      onClick={loc ? () => onSelectLocation({ ...loc, date: dateText }) : undefined}
+    >
       <div className="seg-header">
         <span className="seg-icon">🎣</span>
         <span className="seg-type-label">FISHING</span>
@@ -411,10 +495,15 @@ function TransitBlock({ seg }) {
   )
 }
 
-function PortBlock({ seg }) {
+function PortBlock({ seg, onSelectLocation }) {
   const dateText = fmtShort(seg.start)
+  const loc = segmentLocation(seg)
   return (
-    <div className="seg seg--port" style={{ width: blockWidth(seg, dateText) }}>
+    <div
+      className={`seg seg--port${loc ? ' seg--clickable' : ''}`}
+      style={{ width: blockWidth(seg, dateText) }}
+      onClick={loc ? () => onSelectLocation({ ...loc, date: dateText }) : undefined}
+    >
       <div className="seg-header">
         <span className="seg-icon">⚓</span>
         <span className="seg-type-label">PORT</span>
@@ -434,11 +523,16 @@ function PortBlock({ seg }) {
 // period into its own block — see applyEncounterSplits. Lighter orange than
 // PORT so the two "catch leaves the vessel here" moments (offload at sea vs.
 // landed at port) read as related but distinct.
-function EncounterBlock({ seg }) {
+function EncounterBlock({ seg, onSelectLocation }) {
   const dateText = fmtRange(seg.start, seg.end)
   const { shown, overflow } = collapseEncounterNames(seg.encounters || [])
+  const loc = segmentLocation(seg)
   return (
-    <div className="seg seg--encounter" style={{ width: blockWidth(seg, dateText) }}>
+    <div
+      className={`seg seg--encounter${loc ? ' seg--clickable' : ''}`}
+      style={{ width: blockWidth(seg, dateText) }}
+      onClick={loc ? () => onSelectLocation({ ...loc, date: dateText }) : undefined}
+    >
       <div className="seg-header">
         <span className="seg-icon">🚢</span>
         <span className="seg-type-label seg-type-label--encounter">ENCOUNTER</span>
@@ -464,14 +558,19 @@ function EncounterBlock({ seg }) {
 // The single most recent event in the whole timeline — same content as a
 // regular fishing/port block, but purple, so it reads as "this is the latest
 // known contact" rather than just another trip.
-function LatestBlock({ seg }) {
+function LatestBlock({ seg, onSelectLocation }) {
   const isPort = seg.type === 'latest-port'
   const durationLabel = isPort ? `${seg.days}d` : fmtDurationLabel(seg.start, seg.end)
   const area = !isPort ? formatFaoAreas(seg.fao_areas) : null
   const dateText = isPort ? fmtShort(seg.start) : fmtRange(seg.start, seg.end)
   const width = Math.max(blockWidth(seg, dateText), LATEST_MIN)
+  const loc = segmentLocation(seg)
   return (
-    <div className="seg seg--latest" style={{ width }}>
+    <div
+      className={`seg seg--latest${loc ? ' seg--clickable' : ''}`}
+      style={{ width }}
+      onClick={loc ? () => onSelectLocation({ ...loc, date: dateText }) : undefined}
+    >
       <div className="seg-header">
         <span className="seg-icon">{isPort ? '⚓' : '🎣'}</span>
         <span className="seg-type-label seg-type-label--latest">{isPort ? 'PORT' : 'FISHING'}</span>
@@ -497,16 +596,16 @@ function LatestBlock({ seg }) {
   )
 }
 
-function Segment({ seg }) {
-  if (seg.type === 'fishing')   return <FishingBlock seg={seg} />
+function Segment({ seg, onSelectLocation }) {
+  if (seg.type === 'fishing')   return <FishingBlock seg={seg} onSelectLocation={onSelectLocation} />
   if (seg.type === 'transit')   return <TransitBlock seg={seg} />
-  if (seg.type === 'port')      return <PortBlock seg={seg} />
-  if (seg.type === 'encounter') return <EncounterBlock seg={seg} />
-  if (seg.type === 'latest-fishing' || seg.type === 'latest-port') return <LatestBlock seg={seg} />
+  if (seg.type === 'port')      return <PortBlock seg={seg} onSelectLocation={onSelectLocation} />
+  if (seg.type === 'encounter') return <EncounterBlock seg={seg} onSelectLocation={onSelectLocation} />
+  if (seg.type === 'latest-fishing' || seg.type === 'latest-port') return <LatestBlock seg={seg} onSelectLocation={onSelectLocation} />
   return null
 }
 
-export default function VoyageTimeline({ fishingEvents, portVisits, encounters }) {
+export default function VoyageTimeline({ fishingEvents, portVisits, encounters, onSelectLocation }) {
   // Built once from the raw fishing/port data — this is the "trip" grouping
   // (what counts as one continuous fishing period) and never changes based
   // on encounters, so header stats (trips/days) are always computed from
@@ -543,7 +642,7 @@ export default function VoyageTimeline({ fishingEvents, portVisits, encounters }
           {segments.map((seg, i) => (
             <div key={i} className="tl-item">
               {i > 0 && <div className="tl-arrow">→</div>}
-              <Segment seg={seg} />
+              <Segment seg={seg} onSelectLocation={onSelectLocation} />
             </div>
           ))}
         </div>

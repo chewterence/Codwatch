@@ -22,3 +22,60 @@
   flex: 1;
   min-height: 0;
 }
+
+.map-popup {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 12px;
+  min-width: 140px;
+  color: #e2e8f0;
+}
+
+.map-popup strong {
+  font-size: 13px;
+}
+
+.map-popup-muted {
+  color: #94a3b8;
+  font-size: 11px;
+}
+
+/* Recolors the whole popup chrome (not just the text) to match the clicked
+   segment's card color from VoyageTimeline.css — a plain white popup read as
+   disconnected from the fishing/port/encounter/latest theme it was showing. */
+.vessel-popup .leaflet-popup-content-wrapper,
+.vessel-popup .leaflet-popup-tip {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.vessel-popup .leaflet-popup-close-button {
+  color: #94a3b8 !important;
+}
+
+.vessel-popup--fishing .leaflet-popup-content-wrapper,
+.vessel-popup--fishing .leaflet-popup-tip { background: #0f1f3d; }
+.vessel-popup--fishing .map-popup strong { color: #93c5fd; }
+
+.vessel-popup--port .leaflet-popup-content-wrapper,
+.vessel-popup--port .leaflet-popup-tip { background: #4a2c0d; }
+.vessel-popup--port .map-popup strong { color: #fbbf24; }
+
+.vessel-popup--encounter .leaflet-popup-content-wrapper,
+.vessel-popup--encounter .leaflet-popup-tip { background: #3a1c05; }
+.vessel-popup--encounter .map-popup strong { color: #fb923c; }
+
+.vessel-popup--latest .leaflet-popup-content-wrapper,
+.vessel-popup--latest .leaflet-popup-tip { background: #21123d; }
+.vessel-popup--latest .map-popup strong { color: #a78bfa; }
+
+.vessel-marker-live {
+  animation: vessel-marker-live-pulse 1.6s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+@keyframes vessel-marker-live-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.5; transform: scale(1.35); }
+}
